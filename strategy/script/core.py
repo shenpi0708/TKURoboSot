@@ -31,7 +31,7 @@ class Strategy(object):
 
         if self.robot.is_idle:
           if self.robot.game_start:
-              self.robot.toChase()
+           self.robot.toChase()
 
         if self.robot.is_chase:
           if self.robot.CheckBallHandle():
@@ -52,7 +52,8 @@ class Strategy(object):
 
         ## Keep Current State Running
         keepState = 'to' + self.robot.current_state.name
-        getattr(self.robot, keepState)
+        
+        getattr(self.robot, keepState)()
 
         self.rate.sleep()
 

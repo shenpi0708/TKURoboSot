@@ -13,9 +13,11 @@ class MyStateMachine(Robot, StateMachine):
     self.CC  = Chase()
     self.AC  = Attack()
     dsrv = DynamicReconfigureServer(RobotConfig, self.Callback)
+     
 
   def Callback(self, config, level):
     self.game_start = config['game_start']
+    self.test = config['test']
     self.our_side   = config['our_side']
     self.opp_side   = 'Blue' if self.our_side == 'Yellow' else 'Yellow'
     self.maximum_v = config['maximum_v']
@@ -42,7 +44,8 @@ class MyStateMachine(Robot, StateMachine):
   def on_toIdle(self):
     self.MotionCtrl(0,0,0)
 
-  def on_toChase(self, method = "Classic"):
+  def on_toChase(self):
+    method = "Classic"
     t = self.GetObjectInfo()
     side = self.opp_side
     if method == "Classic":
@@ -50,13 +53,19 @@ class MyStateMachine(Robot, StateMachine):
                                           t['ball']['dis'],\
                                           t['ball']['ang'])
     self.MotionCtrl(x, y, yaw)
+    
+  def on_toAttack(self):
+    if self.test:
+      method = "Twopoint"
+    elif not self.test:
+      method = "Classic"
 
-  def on_toAttack(self, method = "Classic"):
     t = self.GetObjectInfo()
     side = self.opp_side
     if method == "Classic":
       x, y, yaw = self.AC.ClassicAttacking(t[side]['dis'], t[side]['ang'])
-
+    if method == "Twopoint":
+      x, y, yaw = self.AC.Twopoint(t[side]['dis'], t[side]['ang'])
     self.MotionCtrl(x, y, yaw)
 
   def on_toShoot(self, power, pos = 1):
@@ -66,6 +75,6 @@ class MyStateMachine(Robot, StateMachine):
     if self.RobotBallHandle():
       ## Back to normal from Accelerator
       self.ChangeVelocityRange(self.minimum_v, self.maximum_v)
-      Core.last_ball_dis = 0
+      self.last_ball_dis = 0
 
     return self.RobotBallHandle()
