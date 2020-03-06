@@ -49,21 +49,27 @@ class MyStateMachine(Robot, StateMachine):
     t = self.GetObjectInfo()
     side = self.opp_side
     if method == "Classic":
-      x, y, yaw = self.CC.ClassicRounding(t[side]['ang'],\
+      x, y, yaw = self.CC.StraightForward(\
                                           t['ball']['dis'],\
                                           t['ball']['ang'])
     self.MotionCtrl(x, y, yaw)
     
-  def on_toAttack(self):
-    if self.test:
-      method = "Twopoint"
-    elif not self.test:
-      method = "Classic"
-
+  def on_toAttack(self, method = "Orbit"):
     t = self.GetObjectInfo()
     side = self.opp_side
+
+    a = abs(t[side]['ang'])-abs(t['ball']['ang'])
+    if a <10:
+      method = "Classic"
+    
+    if self.test :
+      method = "Twopoint"
+  
+    
     if method == "Classic":
       x, y, yaw = self.AC.ClassicAttacking(t[side]['dis'], t[side]['ang'])
+    if method == "Orbit":
+      x, y, yaw = self.AC.Orbit(t[side]['ang'])
     if method == "Twopoint":
       x, y, yaw = self.AC.Twopoint(t[side]['dis'], t[side]['ang'])
     self.MotionCtrl(x, y, yaw)
