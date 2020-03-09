@@ -35,11 +35,13 @@ class MyStateMachine(Robot, StateMachine):
   chase  = State('Chase')
   attack = State('Attack')
   shoot  = State('Shoot')
+  behavior = State('Behavior')
 
-  toIdle   = chase.to(idle) | attack.to(idle)  | shoot.to(idle) | idle.to.itself()
-  toChase  = idle.to(chase) | attack.to(chase) | chase.to.itself()
-  toAttack = attack.to.itself() | shoot.to(attack) | chase.to(attack)
+  toIdle   = chase.to(idle) | attack.to(idle)  | shoot.to(idle) | idle.to.itself() |behavior.to(idle)
+  toChase  = idle.to(chase) | attack.to(chase) | chase.to.itself() | behavior.to(chase)
+  toAttack = attack.to.itself() | shoot.to(attack) | chase.to(attack) | behavior.to(attack)
   toShoot  = attack.to(shoot)| idle.to(shoot)
+  toBehavior  =  attack.to(behavior) | behavior.to.itself()
 
   def on_toIdle(self):
     self.MotionCtrl(0,0,0)
@@ -53,25 +55,28 @@ class MyStateMachine(Robot, StateMachine):
                                           t['ball']['dis'],\
                                           t['ball']['ang'])
     self.MotionCtrl(x, y, yaw)
-    
-  def on_toAttack(self, method = "Orbit"):
+
+  def on_toBehavior (self):
     t = self.GetObjectInfo()
     side = self.opp_side
-
-    a = abs(t[side]['ang'])-abs(t['ball']['ang'])
-    if a <10:
-      method = "Classic"
-    
-    if self.test :
+    if abs(t[side]['ang'])-abs(t['ball']['ang']) >10:
+      method = "Orbit"
+    elif self.test :
       method = "Twopoint"
-  
-    
-    if method == "Classic":
-      x, y, yaw = self.AC.ClassicAttacking(t[side]['dis'], t[side]['ang'])
+   
     if method == "Orbit":
       x, y, yaw = self.AC.Orbit(t[side]['ang'])
     if method == "Twopoint":
       x, y, yaw = self.AC.Twopoint(t[side]['dis'], t[side]['ang'])
+    self.MotionCtrl(x, y, yaw)
+
+  def on_toAttack(self,):
+    method = "Classic"
+    t = self.GetObjectInfo()
+    side = self.opp_side
+    if method == "Classic":
+      x, y, yaw = self.AC.ClassicAttacking(t[side]['dis'], t[side]['ang'])
+    
     self.MotionCtrl(x, y, yaw)
 
   def on_toShoot(self, power, pos = 1):
