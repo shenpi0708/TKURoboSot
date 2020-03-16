@@ -20,12 +20,23 @@ class Defence(Robot):
       door_x =  goal_dis * math.cos(math.radians(goal_ang))
       door_y =  goal_dis * math.sin(math.radians(goal_ang))
       c = goal_dis - (goal_dis - ball_dis)
-      if goal_ang <-170 and goal_ang >-180 :
-         v_x = v_y = 0
+     
+      
+      v_x = (-abs(door_x) + 3*abs(ball_y))/4
+      if v_x<0 : 
+         v_x = 0
+      if goal_ang <-170 or goal_ang >170 :
+        # v_x =0 
+         v_y = 0
+         v_yaw = ball_ang
+      elif goal_ang<0 :
+         #v_x = ball_x
+         v_y = -ball_y
          v_yaw = ball_ang
       else :
-         v_x = ball_x
+         #v_x = ball_x
          v_y = ball_y
          v_yaw = ball_ang
+      
 
       return v_x, v_y , v_yaw

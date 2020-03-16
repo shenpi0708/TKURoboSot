@@ -20,7 +20,7 @@ class Strategy(object):
 
       targets = self.robot.GetObjectInfo()
       position = self.robot.GetRobotInfo()
-      side = self.robot.opp_side
+
       # Can not find ball when starting
       if targets is None or targets['ball']['ang'] == 999 and self.robot.game_start:
         print("Can not find ball")
@@ -31,24 +31,15 @@ class Strategy(object):
 
         if self.robot.is_idle:
           if self.robot.game_start:
-           self.robot.toChase()
+            if not self.robot.defence:
+              self.robot.toChase()
+            else:
+              self.robot.toDefence()
 
         if self.robot.is_chase:
           if self.robot.CheckBallHandle():
-            if abs(targets[side]['ang'])-abs(targets['ball']['ang']) >10:
-              self.robot.toBehavior()
-            elif not self.robot.test : 
-              self.robot.toAttack()
-            elif self.robot.test :  
-              self.robot.toBehavior()
+            self.robot.toAttack()
 
-        if self.robot.is_behavior:
-          if not self.robot.CheckBallHandle():
-            self.robot.toChase()
-          elif abs(t[side]['ang'])-abs(t['ball']['ang']) <10:
-              if not self.robot.test : 
-                self.robot.toAttack()
-        
         if self.robot.is_attack:
           if not self.robot.CheckBallHandle():
             self.robot.toChase()
