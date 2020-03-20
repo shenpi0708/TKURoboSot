@@ -76,7 +76,7 @@ class MyStateMachine(Robot, StateMachine):
     if method == "Orbit":
       x, y, yaw = self.AC.Orbit(t[side]['ang'])
     if method == "Twopoint":
-      x, y, yaw = self.AC.Twopoint(t[side]['dis'], t[side]['ang'])
+      x, y, yaw = self.AC.Post_up(t[side]['dis'], t[side]['ang'])
     self.MotionCtrl(x, y, yaw)
 
   def on_toDefence(self, method = "Classic"):
