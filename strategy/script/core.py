@@ -17,6 +17,7 @@ class Strategy(object):
   def main(self):
     while not rospy.is_shutdown():
       print(self.robot.current_state)
+      self.robot.RobotStatePub(self.robot.current_state.name)
 
       targets = self.robot.GetObjectInfo()
       position = self.robot.GetRobotInfo()
