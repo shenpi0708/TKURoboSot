@@ -7,7 +7,7 @@ from robot.robot import Robot
 from robot.obstacle import Obstacle
 
 
-class Attack(Robot):
+class Attack(Robot,Obstacle):
   
 
   def __init__(self):
@@ -27,11 +27,12 @@ class Attack(Robot):
 
     return v_x, v_y, v_yaw
     
-  def Twopoint(self, goal_dis, goal_ang):
+  def Twopoint(self, goal_dis, goal_ang,outside_ang,):
     v_a   = goal_dis * math.cos(math.radians(goal_ang))
     v_x   = goal_dis * math.sin(math.radians(goal_ang))
     v_yaw = goal_ang
-    
+    a=0
+    b=0
     if abs(v_yaw - 360) < abs(v_yaw):
       o_yaw = v_yaw - 360
     elif abs(v_yaw + 360) < abs(v_yaw):
@@ -39,14 +40,26 @@ class Attack(Robot):
     else:
       o_yaw = v_yaw
     
+    if outside_ang <b and b>=0:
+      b = 1
+    elif outside_ang >b and b<=0:
+      b = -1
+    else:
+      b = 0
+    if outside_ang >120 or outside_ang < -120:
+      if b > 0 :
+        a = -1
+      elif b < 0 :
+        a = 1
+      else :
+        a = 0
 
-    if goal_ang > 0:
-      v_y = v_a
-    elif goal_ang < 0:
+    if a > 0 :
       v_y = -v_a
+    elif a < 0 :
+      v_y = v_a
     else :
-      v_y = 0
-      
+      v_y = 0  
     return v_x, v_y, o_yaw
 
   def Post_up(self, goal_dis, goal_ang,ranges, angle_increment):
@@ -73,4 +86,5 @@ class Attack(Robot):
         v_x,v_y,v_yaw = self.Force_Calculation(obstacle_force_x , obstacle_force_y ,goal_ang, goal_dis,1)
 
     
-    return v_x, v_y, v_yaw
+    return v_x, v_y, v_yawa
+    

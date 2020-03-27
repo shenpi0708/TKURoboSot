@@ -53,6 +53,7 @@ class MyStateMachine(Robot, StateMachine):
     method = "Classic"
     t = self.GetObjectInfo()
     side = self.opp_side
+    
     if method == "Classic":
       x, y, yaw = self.CC.StraightForward(\
                                           t['ball']['dis'],\
@@ -61,22 +62,32 @@ class MyStateMachine(Robot, StateMachine):
     
   def on_toAttack(self, method = "Orbit"):
     t = self.GetObjectInfo()
+    l = self.GetObstacleInfo()  
     side = self.opp_side
+    ourside = self.our_side
 
-    a = abs(t[side]['ang'])-abs(t['ball']['ang'])
-    if a <10:
+      
+    if not self.test:
       method = "Classic"
     
-    if self.test :
-      method = "Twopoint"
+    elif self.test :
+      method = "Post_up"
+    
   
     
     if method == "Classic":
       x, y, yaw = self.AC.ClassicAttacking(t[side]['dis'], t[side]['ang'])
-    if method == "Orbit":
+    elif method == "Orbit":
       x, y, yaw = self.AC.Orbit(t[side]['ang'])
-    if method == "Twopoint":
-      x, y, yaw = self.AC.Post_up(t[side]['dis'], t[side]['ang'])
+    elif method == "Twopoint":
+      x, y, yaw  = self.AC.Twopoint(t[side]['dis'], t[side]['ang'] ,t[ourside]['ang'])
+    elif method == "Post_up":
+      if t[side]['dis'] < 50 :
+        t[side]['dis'] = 50
+      x, y, yaw = self.AC.Post_up(t[side]['dis'],\
+                                       t[side]['ang'],\
+                                       l['ranges'],\
+                                       l['angle']['increment'])
     self.MotionCtrl(x, y, yaw)
 
   def on_toDefence(self, method = "Classic"):
