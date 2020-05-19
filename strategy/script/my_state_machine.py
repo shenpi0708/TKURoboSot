@@ -5,7 +5,7 @@ from methods.defence import Defence
 from dynamic_reconfigure.server import Server as DynamicReconfigureServer
 from strategy.cfg import RobotConfig
 from robot.robot import Robot
-
+from strategy.msg import RobotState
 class MyStateMachine(Robot, StateMachine):
 
   def __init__(self, sim = False):
@@ -15,7 +15,7 @@ class MyStateMachine(Robot, StateMachine):
     self.DC  = Defence()
     self.AC  = Attack()
     dsrv = DynamicReconfigureServer(RobotConfig, self.Callback)
-     
+    
 
   def Callback(self, config, level):
     self.game_start = config['game_start']
@@ -63,24 +63,27 @@ class MyStateMachine(Robot, StateMachine):
   def on_toAttack(self, method = "Orbit"):
     t = self.GetObjectInfo()
     l = self.GetObstacleInfo()  
+    r2 = self.GetRobot2()
+    r3 = self.GetRobot3()
     side = self.opp_side
     ourside = self.our_side
 
       
     if not self.test:
       method = "Classic"
-    
+    elif self.defence :
+    self.MotionCtrl(0, 0, 0)
     elif self.test :
-      method = "Post_up"
+      method = "ball_pass"
     
-  
     
     if method == "Classic":
       x, y, yaw = self.AC.ClassicAttacking(t[side]['dis'], t[side]['ang'])
     elif method == "Orbit":
       x, y, yaw = self.AC.Orbit(t[side]['ang'])
     elif method == "Twopoint":
-      x, y, yaw  = self.AC.Twopoint(t[side]['dis'], t[side]['ang'] ,t[ourside]['ang'])
+      x, y, yaw  = self.AC.Twopoint(t[side]['dis'], t[side]['ang'] ,t[ourside]
+      ['ang'])
     elif method == "Post_up":
       if t[side]['dis'] < 50 :
         t[side]['dis'] = 50
@@ -88,13 +91,23 @@ class MyStateMachine(Robot, StateMachine):
                                        t[side]['ang'],\
                                        l['ranges'],\
                                        l['angle']['increment'])
+    elif method == "ball_pass":
+      x, y, yaw = self.AC.ball_pass(r2['position']['x'],r2['position']['y'],r2['position']['yaw'],r3['position']['x'],r3['position']['y'],r3['position']['yaw'])
     self.MotionCtrl(x, y, yaw)
 
-  def on_toDefence(self, method = "Classic"):
+  def on_toDefence(self, method = "ball_pass"):
     t = self.GetObjectInfo()
     side = self.our_side
 
-    if method == "Classic":
+    r2 = self.GetRobot2()
+    r3 = self.GetRobot3()
+    if method == "ball_pass":
+      x, y, yaw = self.AC.ball_pass(r3['position']['x'],r3['position']['y'],r3['position']['yaw'],r2['position']['x'],r2['position']['y'],r2['position']['yaw'])
+
+
+
+
+    elif method == "Classic":
       x, y, yaw = self.DC.Toball(t['ball']['dis'], t['ball']['ang'], t[side]['dis'], t[side]['ang'])
     self.MotionCtrl(x, y, yaw)
 

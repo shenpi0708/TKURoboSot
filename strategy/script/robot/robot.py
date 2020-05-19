@@ -117,6 +117,8 @@ class Robot(object):
     print("Robot informations: {}".format(self.__robot_info))
     print("Objects informations: {}".format(self.__object_info))
     print("Obstacles informations: {}".format(self.__obstacle_info))
+    print(self.robot2)
+    print(self.robot3)
 
   def __init__(self, sim = False):
 
@@ -133,7 +135,7 @@ class Robot(object):
     ts = message_filters.ApproximateTimeSynchronizer([robot2_sub, robot3_sub], 10, 0.1, allow_headerless=True)
     ts.registerCallback(self.MulticastReceiver)
     s = rospy.Service('passing_action', Trigger, self._PassingServer)
-
+    
     if not sim :
       rospy.Subscriber('interface/Two_point', Two_point, self._GetTwopoint)
       rospy.Subscriber(IMU, inertia, self._GetImu)
@@ -187,10 +189,12 @@ class Robot(object):
     self.robot3['position']['x']   = r3_data.position.linear.x
     self.robot3['position']['y']   = r3_data.position.linear.y
     self.robot3['position']['yaw'] = r3_data.position.angular.z
+    # print(self.robot2)
+    # print(self.robot3)
     if "robot1" in rospy.get_namespace():
-      dd12 = np.linalg.norm(np.array([self.__robot_info['locatoin']['x'] - self.robot2['position']['x'],
+      dd12 = np.linalg.norm(np.array([self.__robot_info['location']['x'] - self.robot2['position']['x'],
                                       self.__robot_info['location']['y'] - self.robot2['position']['y']]))
-      dd13 = np.linalg.norm(np.array([self.__robot_info['locatoin']['x'] - self.robot3['position']['x'],
+      dd13 = np.linalg.norm(np.array([self.__robot_info['location']['x'] - self.robot3['position']['x'],
                                       self.__robot_info['location']['y'] - self.robot3['position']['y']]))
       self.near_robot_ns = "/robot2" if dd12 < dd13 else "/robot3"
       self.near_robot = self.robot2 if dd12 < dd13 else self.robot3
@@ -339,7 +343,7 @@ class Robot(object):
     m.position.linear.y  = self.__robot_info['location']['y']
     m.position.angular.z = self.__robot_info['location']['yaw']
     self.state_pub.publish(m)
-
+    
   def ConvertSpeedToPWM(self, x, y):
     reducer = 24
     max_rpm = 7580
@@ -391,7 +395,52 @@ class Robot(object):
       msg.linear.y   = output_y
       msg.angular.z  = output_w
       self.cmdvel_pub.publish(msg)
+  def OtherRobotdis(self):
+    robot1_x = self.GetRobot2()['position']['x']
+    robot1_y = self.GetRobot2()['position']['y']
+    robot2_x = self.GetRobot3()['position']['x']
+    robot2_y = self.GetRobot3()['position']['y']
+    
 
+    dis_x = robot2_x - robot1_x
+    dis_y = robot2_y - robot1_y
+    dis = pow(pow(dis_x,2) + pow(dis_y,2),0.5)
+    if(dis!=0):
+      a = math.acos(dis_x/dis)*180/math.pi
+      b = math.asin(dis_y/dis)*180/math.pi
+    else :
+      print('error')
+      return 0,0
+
+    if a>=0 and b>=0:
+      v_yawa = a
+    elif a<=0 and b>=0:
+      v_yawa = a+90
+    elif a<=0 and b<=0:
+      v_yawa = -abs(a+90)
+    elif a>=0 and b<=0:
+      v_yawa = -a
+
+    dis_x = robot1_x - robot2_x
+    dis_y = robot1_y - robot2_y
+    dis = pow(pow(dis_x,2) + pow(dis_y,2),0.5)
+    if(dis!=0):
+      a = math.acos(dis_x/dis)*180/math.pi
+      b = math.asin(dis_y/dis)*180/math.pi
+    else :
+      print('error')
+      return 0,0
+
+    if a>=0 and b>=0:
+      v_yawb = a
+    elif a<=0 and b>=0:
+      v_yawb = a+90
+    elif a<=0 and b<=0:
+      v_yawb = -abs(a+90)
+    elif a>=0 and b<=0:
+      v_yawb = -a
+    return v_yawa,v_yawb
+      
   def GetObjectInfo(self):
     return self.__object_info
 
@@ -403,7 +452,13 @@ class Robot(object):
 
   def GetObstacleInfo(self):
     return self.__obstacle_info
-
+  def GetRobot1(self):
+    return self.robot1#maybe error
+  def GetRobot2(self):
+    return self.robot2
+  def GetRobot3(self):
+    return self.robot3
+    
   def RealShoot(self, power, pos) :
     msg = Int32()
     msg.data = power

@@ -84,7 +84,30 @@ class Attack(Robot,Obstacle):
 
     else :
         v_x,v_y,v_yaw = self.Force_Calculation(obstacle_force_x , obstacle_force_y ,goal_ang, goal_dis,1)
+  def ball_pass(self, robot1_x,robot1_y,robot1_yaw, robot2_x,robot2_y,robot2_yaw):
+    dis_x = robot2_x - robot1_x
+    dis_y = robot2_y - robot1_y
+    dis = pow(pow(dis_x,2) + pow(dis_y,2),0.5)
+    if(dis!=0):
+      a = math.acos(dis_x/dis)*180/math.pi
+      b = math.asin(dis_y/dis)*180/math.pi
+      print('a=',a,'b=',b)
+    else :
+      print('error')
+      return 0, 0, 0
 
+    if a>=0 and b>=0:
+      v_yawa = a
+    elif a<=0 and b>=0:
+      v_yawa = a+90
+    elif a<=0 and b<=0:
+      v_yawa = -abs(a+90)
+    elif a>=0 and b<=0:
+      v_yawa = -a
     
-    return v_x, v_y, v_yawa
+    v_yaw = v_yawa-robot1_yaw
+    if v_yaw< -180:
+      v_yaw=v_yaw+360
+
+    return 0,0,v_yaw
     

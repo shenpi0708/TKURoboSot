@@ -18,10 +18,12 @@ class Strategy(object):
     while not rospy.is_shutdown():
       print(self.robot.current_state)
       self.robot.RobotStatePub(self.robot.current_state.name)
-
+      # self.robot.ShowRobotInfo()
       targets = self.robot.GetObjectInfo()
       position = self.robot.GetRobotInfo()
-
+      r3 = self.robot.GetRobot3()
+      robotdis_a,robotdis_b = self.robot.OtherRobotdis()
+      print(abs(robotdis_a-position['location']['yaw']),  abs(robotdis_b-r3['position']['yaw']))
       # Can not find ball when starting
       if targets is None or targets['ball']['ang'] == 999 and self.robot.game_start:
         print("Can not find ball")
@@ -44,9 +46,12 @@ class Strategy(object):
         if self.robot.is_attack:
           if not self.robot.CheckBallHandle():
             self.robot.toChase()
+          elif abs(robotdis_a-position['location']['yaw'])<3 and  abs(robotdis_b-r3['position']['yaw'])<3:
+            self.robot.toShoot(50)            
           elif  abs(targets[self.robot.opp_side]['ang']) < self.robot.atk_shoot_ang and \
                 abs(targets[self.robot.opp_side]['dis']) < self.robot.atk_shoot_dis:
             self.robot.toShoot(100)
+
 
         if self.robot.is_shoot:
           self.robot.toAttack()
