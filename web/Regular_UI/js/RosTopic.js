@@ -117,7 +117,7 @@ V1.subscribe(function(msg) {
     y1_=Math.round(y1_);
 
     document.getElementById('coordinate_x1').innerText = x1;
-    document.getElementById('coordinate_y1').innerText = -y1;
+    document.getElementById('coordinate_y1').innerText = y1;
     document.getElementById('coordinate_angle1').innerText = w1;
  
     draw_robot_map();
@@ -145,7 +145,7 @@ V2.subscribe(function(msg) {
     y2_=Math.round(y2_);
 
     document.getElementById('coordinate_x2').innerText = x2;
-    document.getElementById('coordinate_y2').innerText = -y2;
+    document.getElementById('coordinate_y2').innerText = y2;
     document.getElementById('coordinate_angle2').innerText = w2;
     
     draw_robot_map();
@@ -173,7 +173,7 @@ V3.subscribe(function(msg) {
     y3_=Math.round(y3_);
 
     document.getElementById('coordinate_x3').innerText = x3;
-    document.getElementById('coordinate_y3').innerText = -y3;
+    document.getElementById('coordinate_y3').innerText = y3;
     document.getElementById('coordinate_angle3').innerText = w3;
 
     draw_robot_map();
@@ -190,19 +190,95 @@ function draw_robot_map(){
     let ground_reverse = document.getElementById("GroundButton").checked;
     let MCLmap_checked = document.getElementById("MCLmap").checked;
 
-    if(!MCLmap_checked&&!map_checked){
+    if(!map_checked){
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         var sigma_error = 20;
         
         ctx.beginPath();
 
-        draw_robot(1,sigma1,x1,y1,x1_,y1_,catchball1,imu1);
-        draw_robot(2,sigma2,x2,y2,x2_,y2_,catchball2,imu2);
-        draw_robot(3,sigma3,x3,y3,x3_,y3_,catchball3,imu3);
+        //draw_robot(1,sigma1,x1,y1,w1,catchball1,imu1);
+        
         ball_condition();
+        draw_robot(2,sigma2,x2,y2,w2,catchball2,imu2);
+        draw_robot(3,sigma3,x3,y3,w3,catchball3,imu3);
+        draw_obstacle(x1,y1,w1,obstacle_info1);
+        draw_obstacle(x2,y2,w2,obstacle_info2);
+        draw_obstacle(x3,y3,w3,obstacle_info3);
+        draw_move_line(x1,y1,w1,move_angle1,move_speed1,move_w1);
+        draw_move_line(x2,y2,w2,move_angle2,move_speed2,move_w2);
+        draw_move_line(x3,y3,w3,move_angle3,move_speed3,move_w3);
+        
     }
 }
-function draw_robot(num,sigma,x,y,x_,y_,catchball,imu){
+function draw_obstacle(x,y,w,obstacle_info){
+    
+    let canvas = document.getElementById("robot_map");
+    let ctx = canvas.getContext("2d");
+    let center_x = canvas.width / 2;
+    let center_y = canvas.height / 2;
+    let angle = (w)/180*Math.PI;
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 5;
+    for(let i=0; i<obstacle_info.length; i+=4){
+        ctx.beginPath();
+        if(w!=0){
+            let o_dis = obstacle_info[i+0];
+            let o_ang = obstacle_info[i+1]/180*Math.PI;
+            let o_ang_max = -obstacle_info[i+2]/180*Math.PI;
+            let o_ang_min = -obstacle_info[i+3]/180*Math.PI;
+            
+            let x_= x+o_dis * Math.cos(angle+o_ang);
+            let y_= y+o_dis * Math.sin(angle+o_ang);
+            if(Math.abs(x_)>350 || Math.abs(y_)>200) continue;
+            arc_dis = Math.sqrt(Math.pow(x-x_,2)+Math.pow(y-y_,2));
+            ctx.arc(center_x + (x *0.877), center_y - (y * 0.88), arc_dis, o_ang_max-angle, o_ang_min-angle);
+            ctx.stroke();
+        }
+        ctx.closePath();
+        
+    }    
+}
+function draw_move_line(x,y,w,move_angle,move_speed,move_w){
+    let canvas = document.getElementById("robot_map");
+    let ctx = canvas.getContext("2d");
+    let center_x = canvas.width / 2;
+    let center_y = canvas.height / 2;
+    let angle = (w)/180*Math.PI;
+    ctx.lineWidth = 5;
+    //=================================
+    //console.log(move_angle);
+    ctx.beginPath();
+    if(move_angle!=999){
+        //Y = ( ( X - X1 )( Y2 - Y1) / ( X2 - X1) ) + Y1
+        let length = (move_speed-0)*(60-15)/(80-0)+15;
+        if(length>50)length=50;
+        //console.log(move_speed);
+        ctx.strokeStyle = '#3366ff';
+        x_= x+length * Math.cos(move_angle+angle);
+        y_= y+length * Math.sin(move_angle+angle);
+        x_=Math.round(x_);
+        y_=Math.round(y_);
+        ctx.moveTo(center_x + (x * 0.877), center_y - (y * 0.88));
+        ctx.lineTo(center_x + (x_ *0.877), center_y - (y_ * 0.88));
+        ctx.stroke();
+    }
+    ctx.closePath();
+    ctx.beginPath();
+    let percent = ((Math.abs(move_w)-0)*(100-10)/(50-0)+10)/100;
+    if(move_w>0){
+        ctx.strokeStyle = '#3366ff';
+        ctx.arc(center_x + (x *0.877), center_y - (y * 0.88), 30,  -angle+ Math.PI*(1+(1-percent)), -angle + 2*Math.PI);
+        ctx.stroke();
+    }
+    if(move_w<0){
+        ctx.strokeStyle = '#3366ff';
+        ctx.arc(center_x + (x *0.877), center_y - (y * 0.88), 30,  -angle, -angle + Math.PI*percent);
+        ctx.stroke();
+    }
+    ctx.closePath();
+    //=================================
+}
+function draw_robot(num,sigma,x,y,w,catchball,imu){
     if(sigma!=null){
         let ground_reverse = document.getElementById("GroundButton").checked;
         let canvas = document.getElementById("robot_map");
@@ -218,8 +294,15 @@ function draw_robot(num,sigma,x,y,x_,y_,catchball,imu){
         x_imu=Math.round(x_imu);
         y_imu=Math.round(y_imu);
 
+        let angle = (w)/180*Math.PI;
+        x_= Math.round(x+20 * Math.cos(angle));
+        y_= Math.round(y+20 * Math.sin(angle));
+        
+        tmp_angle = Math.abs((angle-angle_imu)*180/Math.PI);
+        if(tmp_angle>180)tmp_angle = 360-tmp_angle;
+        //console.log(tmp_angle);
         ctx.beginPath();
-        if (sigma < sigma_error) {
+        if (sigma < sigma_error && tmp_angle<40) {
             ctx.strokeStyle = '#FFFF00';
             ctx.lineWidth = 5;
         } else {
@@ -231,6 +314,7 @@ function draw_robot(num,sigma,x,y,x_,y_,catchball,imu){
         ctx.lineTo(center_x + (x_ *0.877), center_y - (y_ * 0.88));
         ctx.stroke();
         ctx.closePath();
+        
         ctx.beginPath();
         ctx.strokeStyle = '#FF0000';
         ctx.lineWidth = 3;
@@ -281,21 +365,17 @@ function ball_condition(){
       }
     }
     else if(ball_ang2!=999&&ball_ang3!=999){
-      let x,y;
-      m2=Math.tan((ball_ang2+w2)/180*Math.PI);
-      m3=Math.tan((ball_ang3+w3)/180*Math.PI);
-      //m2*x-y=m2*x2-y2;
-      //m3*x-y=m3*x3-y3;
       let canvas = document.getElementById("robot_map");
       let ctx = canvas.getContext("2d");
       let center_x = canvas.width / 2;
       let center_y = canvas.height / 2;
-      x=((m2*x2-y2)-(m3*x3-y3))/(m2-m3);
-      y=-(m2*x2-y2-m2*x);
-      ctx.arc(center_x + (x * 0.877), center_y - (y * 0.88),13,0,360,false);
-      ctx.fillStyle="red";//填充颜色,默认是黑色
-      ctx.fill();//画实心圆
-      //=======================================
+      let x,y;
+      if(ball_dis2<ball_dis3){
+         draw_ball(x2,y2,w2,ball_ang2,ball_dis2);
+      }else{
+         draw_ball(x3,y3,w3,ball_ang3,ball_dis3);
+      }
+      
       ctx.beginPath();
       ctx.strokeStyle = '#000000';
       ctx.arc(center_x+(x*0.877), center_y-(y*0.88), 13, 0, 2*Math.PI);
@@ -365,7 +445,7 @@ function ImuReset() {
         console.log(w2-90);
         imu_pub2.publish(msg);
     }
-    else{
+    else if(robot_checked3){
         var msg = new ROSLIB.Message({
           data: w3-90 
         });
@@ -412,11 +492,10 @@ function CoordReset() {
 
     }
     else if(robot_checked2){
-       
         resetParticles2.publish(msg);
         reset_bool=false;
     }
-    else{
+    else if(robot_checked3){
         resetParticles3.publish(msg);
         reset_bool=false;
     }
@@ -444,7 +523,7 @@ function CoordReverse() {
         });
         resetParticles2.publish(msg);
     }
-    else{
+    else if(robot_checked3){
         var msg = new ROSLIB.Message({
             init: true,
             x: -x3,
@@ -454,6 +533,7 @@ function CoordReverse() {
         resetParticles3.publish(msg);
     }
     //console.log(msg.w);
+    setTimeout(ImuReset,300);
 }
 /*========================================================*/
 /*========================================================*/
@@ -605,6 +685,34 @@ var cmdVel3 = new ROSLIB.Topic({
     messageType: '/geometry_msgs/Twist'
 });
 
+cmdVel1.subscribe(function(msg) {
+    move_angle1 = Math.atan2(-msg.linear.x,msg.linear.y);
+    move_speed1 = Math.sqrt(Math.pow(msg.linear.x,2)+Math.pow(msg.linear.y,2));
+    if(msg.linear.x==0&&msg.linear.y==0){
+        move_angle1=999;
+    }
+    move_w1 = msg.angular.z;
+    //console.log(move_w);
+});
+cmdVel2.subscribe(function(msg) {
+    move_angle2 = Math.atan2(-msg.linear.x,msg.linear.y);
+    move_speed2 = Math.sqrt(Math.pow(msg.linear.x,2)+Math.pow(msg.linear.y,2));
+    if(msg.linear.x==0&&msg.linear.y==0){
+        move_angle2=999;
+    }
+    move_w2 = msg.angular.z;
+    //console.log(move_w);
+});
+cmdVel3.subscribe(function(msg) {
+    move_angle3 = Math.atan2(-msg.linear.x,msg.linear.y);
+    move_speed3 = Math.sqrt(Math.pow(msg.linear.x,2)+Math.pow(msg.linear.y,2));
+    if(msg.linear.x==0&&msg.linear.y==0){
+        move_angle3=999;
+    }
+    move_w3 = msg.angular.z;
+    //console.log(move_w);
+});
+
 function StrategyStop() {
     setTimeout(StandBy, 0);
     setTimeout(StandBy, 100);
@@ -682,6 +790,7 @@ function PublishTopicShoot(size) {
         data: size
     });
     if (RemoteState) {
+        console.log("shoot "+size);
         if (ChooseRobot == 1) {
             TopicShoot1.publish(Shoot);
         } else if (ChooseRobot == 2) {
@@ -1007,3 +1116,30 @@ function HoldBallSwitch(state,robot) {
     if (CheckIP[2] == 1 && robot == 3)
         HoldBall3.publish(check);
 }
+//=========================================
+var obstacle1 = new ROSLIB.Topic({
+    ros: ros,
+    name: 'vision/obstacle',
+    messageType: '/std_msgs/Int32MultiArray'
+});
+var obstacle2 = new ROSLIB.Topic({
+    ros: ros2,
+    name: 'vision/obstacle',
+    messageType: '/std_msgs/Int32MultiArray'
+});
+var obstacle3 = new ROSLIB.Topic({
+    ros: ros3,
+    name: 'vision/obstacle',
+    messageType: '/std_msgs/Int32MultiArray'
+});
+
+obstacle1.subscribe(function(msg) {
+   obstacle_info1 = msg.data;
+});
+obstacle2.subscribe(function(msg) {
+   obstacle_info2 = msg.data;
+});
+obstacle3.subscribe(function(msg) {
+   obstacle_info3 = msg.data;
+   //console.log(obstacle_info3);
+});

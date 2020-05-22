@@ -71,8 +71,6 @@ class MyStateMachine(Robot, StateMachine):
       
     if not self.test:
       method = "Classic"
-    elif self.defence :
-    self.MotionCtrl(0, 0, 0)
     elif self.test :
       method = "ball_pass"
     

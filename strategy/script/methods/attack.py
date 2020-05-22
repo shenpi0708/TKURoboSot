@@ -91,7 +91,6 @@ class Attack(Robot,Obstacle):
     if(dis!=0):
       a = math.acos(dis_x/dis)*180/math.pi
       b = math.asin(dis_y/dis)*180/math.pi
-      print('a=',a,'b=',b)
     else :
       print('error')
       return 0, 0, 0
@@ -108,6 +107,9 @@ class Attack(Robot,Obstacle):
     v_yaw = v_yawa-robot1_yaw
     if v_yaw< -180:
       v_yaw=v_yaw+360
-
+    elif v_yaw>180:
+      v_yaw=v_yaw-360
+    print(v_yaw,v_yawa,robot1_yaw)
     return 0,0,v_yaw
+
     

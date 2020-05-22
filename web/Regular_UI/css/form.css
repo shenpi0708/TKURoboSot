@@ -15,7 +15,12 @@ body {
 
 /*==============================================*/
 
-
+#new_strategy {
+    border: 1px solid #d3d3d3;
+    position: absolute;
+    top: 6%;
+    right: -32%;
+}
 /*Wifi*/
 
 #StrategyWifi {
@@ -519,8 +524,8 @@ table.RobotInformationTable tfoot td {
 }
 
 /*==========================================================*/
-#locTable {
-    width: 450px;
+#localTable {
+    width: 380px;
     height: 80px;
     z-index: 2;
     /*border: 1px solid black;*/

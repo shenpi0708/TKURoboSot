@@ -6,7 +6,7 @@ function MonitorSwitch(checked) {
     //let check = document.getElementById("CameraSwitch").checked;
 
     if (checked == true) {
-        document.getElementById('locTable').style.zIndex = "-1";
+        document.getElementById('localTable').style.zIndex = "-1";
         let canvas = document.getElementById('reset_map');
         let ctx=canvas.getContext("2d");
         ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -51,7 +51,7 @@ function MonitorSwitch(checked) {
             // console.log(00);
         }
     } else {
-        document.getElementById('locTable').style.zIndex = "10";
+        document.getElementById('localTable').style.zIndex = "2";
         attack_way();
         
         //======================================
@@ -90,15 +90,15 @@ function Mclmap(checked) {
     attack_way();
     var video = document.getElementById("MapCanvas");
     var camera_checked = document.getElementById("CameraSwitch").checked;
-    let canvas = document.getElementById("robot_map");
-    let ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //let canvas = document.getElementById("robot_map");
+    //let ctx = canvas.getContext("2d");
+    //ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     canvas = document.getElementById("caution_map");
     ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    document.getElementById('locTable').style.zIndex = "10";
+    document.getElementById('localTable').style.zIndex = "2";
     if(reset_bool == true){
         let canvas = document.getElementById('reset_map');
         let ctx=canvas.getContext("2d");
@@ -337,6 +337,13 @@ ResetMap.addEventListener("mousedown", function(e) {
           reset_x=x_;
           reset_y=y_;
           reset_w=-mouse_angle/pi*180;
+          if(reset_w<0){
+              reset_w = -reset_w%360*-1;
+          }else{
+              reset_w = reset_w%360;
+          }
+          if(reset_w<-180)reset_w=360+reset_w;
+          if(reset_w>180 )reset_w=reset_w-360;
           //if(!ground_reverse){
           //    reset_x=x_;
           //    reset_y=y_;
@@ -346,7 +353,7 @@ ResetMap.addEventListener("mousedown", function(e) {
           //    reset_y=-y_;
           //    reset_w=-((mouse_angle/pi*180)-180);
           //}
-          console.log(parseInt(reset_x), parseInt(reset_y), parseInt(reset_w));
+          console.log(parseInt(reset_x), parseInt(-reset_y), parseInt(reset_w));
           ResetMap.addEventListener("mousemove", function(event) {
               camera_on = document.getElementById("CameraSwitch").checked;
               if(mouse_clicked == true&&camera_on==false){
@@ -355,8 +362,9 @@ ResetMap.addEventListener("mousedown", function(e) {
                   let ctx=canvas.getContext("2d");
                   ctx.clearRect(0,0,canvas.width,canvas.height);
                   ctx.beginPath();
+                  let move_y = event.offsetY;
                   let move_x = event.offsetX;
-                  mouse_angle = angle_offset+(mouse_x-move_x)/180*pi;
+                  mouse_angle = angle_offset+((mouse_y-move_y)*3+(mouse_x-move_x)*3)/180*pi;
                   line_x = mouse_x+20 * Math.cos(mouse_angle);
                   line_y = mouse_y+20 * Math.sin(mouse_angle);
                   ctx.arc(mouse_x, mouse_y, 15, 0, 2*Math.PI);
@@ -372,6 +380,14 @@ ResetMap.addEventListener("mousedown", function(e) {
                       reset_y=-y_;
                       reset_w=-((mouse_angle/pi*180)-180);
                   }
+                  
+                  if(reset_w<0){
+                      reset_w = -reset_w%360*-1;
+                  }else{
+                      reset_w = reset_w%360;
+                  }
+                  if(reset_w<-180)reset_w=360+reset_w;
+                  if(reset_w>180 )reset_w=reset_w-360;
               }
           });
           

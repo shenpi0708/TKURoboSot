@@ -38,3 +38,19 @@ var reset_w=0;
 var catchball1=0;
 var catchball2=0;
 var catchball3=0;
+
+var move_angle1 = 999;
+var move_angle2 = 999;
+var move_angle3 = 999;
+
+var move_speed1= 0;
+var move_speed2= 0;
+var move_speed3= 0;
+
+var move_w1 = 0;
+var move_w2 = 0;
+var move_w3 = 0;
+
+var obstacle_info1 = [];
+var obstacle_info2 = [];
+var obstacle_info3 = [];
