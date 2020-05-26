@@ -49,6 +49,7 @@ int main(int argc, char * argv[])
   // topic: the name of the topic to bridge
   // type: the type of the topic to bridge
   // queue_size: the queue size to use (default: 100)
+  
   const char * parameter_name = "topics";
   if (argc > 1) {
     parameter_name = argv[1];
