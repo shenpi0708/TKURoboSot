@@ -1,0 +1,10 @@
+topics:
+  - topic: "robot2/strategy/state"
+    type: "strategy/msg/RobotState"
+    queue_size: 5
+  - topic: "robot3/strategy/state"
+    type: "strategy/msg/RobotState"
+    queue_size: 5
+  - topic: "test_bridge"
+    type: "std_msgs/msg/Int32"
+    queue_size: 5
