@@ -97,10 +97,10 @@ class MyStateMachine(Robot, StateMachine):
     t = self.GetObjectInfo()
     side = self.our_side
 
-    r2 = self.GetRobot2()
-    r3 = self.GetRobot3()
+    rs = self.GetRobotInfo()
+    ro = self.GetRobotOther()
     if method == "ball_pass":
-      x, y, yaw = self.AC.ball_pass(r3['position']['x'],r3['position']['y'],r3['position']['yaw'],r2['position']['x'],r2['position']['y'],r2['position']['yaw'])
+      x, y, yaw = self.AC.ball_pass(rs['position']['x'],rs['position']['y'],rs['position']['yaw'],ro['position']['x'],ro['position']['y'],ro['position']['yaw'])
 
 
 
