@@ -63,8 +63,8 @@ class MyStateMachine(Robot, StateMachine):
   def on_toAttack(self, method = "Orbit"):
     t = self.GetObjectInfo()
     l = self.GetObstacleInfo()  
-    r2 = self.GetRobot2()
-    r3 = self.GetRobot3()
+    rs = self.GetRobotInfo()
+    ro = self.GetRobotOther()
     side = self.opp_side
     ourside = self.our_side
 
@@ -90,7 +90,7 @@ class MyStateMachine(Robot, StateMachine):
                                        l['ranges'],\
                                        l['angle']['increment'])
     elif method == "ball_pass":
-      x, y, yaw = self.AC.ball_pass(r2['position']['x'],r2['position']['y'],r2['position']['yaw'],r3['position']['x'],r3['position']['y'],r3['position']['yaw'])
+      x, y, yaw = self.AC.ball_pass(rs['location']['x'],rs['location']['y'],rs['location']['yaw'],ro['position']['x'],ro['position']['y'],ro['position']['yaw'])
     self.MotionCtrl(x, y, yaw)
 
   def on_toDefence(self, method = "ball_pass"):

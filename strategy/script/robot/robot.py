@@ -189,8 +189,6 @@ class Robot(object):
     self.robot3['position']['x']   = r3_data.position.linear.x
     self.robot3['position']['y']   = r3_data.position.linear.y
     self.robot3['position']['yaw'] = r3_data.position.angular.z
-    # print(self.robot2)
-    # print(self.robot3)
     if "robot1" in rospy.get_namespace():
       dd12 = np.linalg.norm(np.array([self.__robot_info['location']['x'] - self.robot2['position']['x'],
                                       self.__robot_info['location']['y'] - self.robot2['position']['y']]))
@@ -204,6 +202,7 @@ class Robot(object):
     elif "robot3" in rospy.get_namespace():
       self.near_robot_ns = "/robot2"
       self.near_robot = self.robot2
+    
 
   def Supervisor(self):
     duration = time.time() - Robot.sync_last_time
@@ -452,13 +451,13 @@ class Robot(object):
 
   def GetObstacleInfo(self):
     return self.__obstacle_info
-  def GetRobot1(self):
-    return self.robot1#maybe error
+
+  def GetRobotOther(self):
+    return self.near_robot
   def GetRobot2(self):
     return self.robot2
   def GetRobot3(self):
-    return self.robot3
-    
+    return self.robot3   
   def RealShoot(self, power, pos) :
     msg = Int32()
     msg.data = power
