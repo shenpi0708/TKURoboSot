@@ -94,7 +94,6 @@ class Attack(Robot,Obstacle):
     else :
       print('error')
       return 0, 0, 0
-
     if a>=0 and b>=0:
       v_yawa = a
     elif a<=0 and b>=0:
@@ -109,7 +108,6 @@ class Attack(Robot,Obstacle):
       v_yaw=v_yaw+360
     elif v_yaw>180:
       v_yaw=v_yaw-360
-    print(v_yaw,v_yawa,robot1_yaw)
     return 0,0,v_yaw
 
     

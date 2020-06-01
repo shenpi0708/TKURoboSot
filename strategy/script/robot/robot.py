@@ -395,12 +395,12 @@ class Robot(object):
       msg.angular.z  = output_w
       self.cmdvel_pub.publish(msg)
   def OtherRobotdis(self):
-    robot1_x = self.GetRobot2()['position']['x']
-    robot1_y = self.GetRobot2()['position']['y']
-    robot2_x = self.GetRobot3()['position']['x']
-    robot2_y = self.GetRobot3()['position']['y']
-    
-
+    robot1_x = self.GetRobotInfo()['location']['x']
+    robot1_y = self.GetRobotInfo()['location']['y']
+    robot2_x = self.GetRobotOther()['position']['x']
+    robot2_y = self.GetRobotOther()['position']['y']
+    robot1_yaw = self.GetRobotInfo()['location']['yaw']
+    robot2_yaw = self.GetRobotOther()['position']['yaw']
     dis_x = robot2_x - robot1_x
     dis_y = robot2_y - robot1_y
     dis = pow(pow(dis_x,2) + pow(dis_y,2),0.5)
@@ -420,6 +420,13 @@ class Robot(object):
     elif a>=0 and b<=0:
       v_yawa = -a
 
+    v_yawaa = v_yawa-robot1_yaw
+    if v_yawaa< -180:
+      v_yawaa=v_yawaa+360
+    elif v_yawaa>180:
+      v_yawaa=v_yawaa-360
+
+
     dis_x = robot1_x - robot2_x
     dis_y = robot1_y - robot2_y
     dis = pow(pow(dis_x,2) + pow(dis_y,2),0.5)
@@ -438,7 +445,14 @@ class Robot(object):
       v_yawb = -abs(a+90)
     elif a>=0 and b<=0:
       v_yawb = -a
-    return v_yawa,v_yawb
+
+    v_yawbb = v_yawb-robot2_yaw
+    if v_yawbb< -180:
+      v_yawbb=v_yawbb+360
+    elif v_yawbb>180:
+      v_yawbb=v_yawbb-360
+      
+    return v_yawaa,v_yawbb
       
   def GetObjectInfo(self):
     return self.__object_info

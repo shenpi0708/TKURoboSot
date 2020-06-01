@@ -69,10 +69,10 @@ class MyStateMachine(Robot, StateMachine):
     ourside = self.our_side
 
       
-    if not self.test:
-      method = "Classic"
-    elif self.test :
+    if  self.test:
       method = "ball_pass"
+    else :
+      method = "Classic"
     
     
     if method == "Classic":
@@ -91,6 +91,7 @@ class MyStateMachine(Robot, StateMachine):
                                        l['angle']['increment'])
     elif method == "ball_pass":
       x, y, yaw = self.AC.ball_pass(rs['location']['x'],rs['location']['y'],rs['location']['yaw'],ro['position']['x'],ro['position']['y'],ro['position']['yaw'])
+
     self.MotionCtrl(x, y, yaw)
 
   def on_toDefence(self, method = "ball_pass"):
