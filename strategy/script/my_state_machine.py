@@ -39,13 +39,13 @@ class MyStateMachine(Robot, StateMachine):
   attack = State('Attack')
   defence = State('Defence')
   shoot  = State('Shoot')
-
-  toIdle   = chase.to(idle) | attack.to(idle)  | shoot.to(idle) | defence.to(idle) | idle.to.itself()
-  toChase  = idle.to(chase) | attack.to(chase) | chase.to.itself() | defence.to(chase)
-  toAttack = attack.to.itself() | shoot.to(attack) | chase.to(attack)
+  supporter = State('Supporter')
+  toIdle   = chase.to(idle) | attack.to(idle)  | shoot.to(idle) | defence.to(idle) | idle.to.itself() |supporter.to(idle)
+  toChase  = idle.to(chase) | attack.to(chase) | chase.to.itself() | defence.to(chase)|supporter.to(chase)
+  toAttack = attack.to.itself() | shoot.to(attack) | chase.to(attack) |supporter.to(attack)
   toDefence = defence.to.itself() | idle.to(defence) | chase.to(defence)
-  toShoot  = attack.to(shoot)| idle.to(shoot)
-
+  toShoot  = attack.to(shoot) | idle.to(shoot)
+  toSupporter =  attack.to(supporter)  | idle.to(supporter ) | supporter.to.itself()| chase.to(supporter)
   def on_toIdle(self):
     self.MotionCtrl(0,0,0)
 
@@ -60,7 +60,7 @@ class MyStateMachine(Robot, StateMachine):
                                           t['ball']['ang'])
     self.MotionCtrl(x, y, yaw)
     
-  def on_toAttack(self, method = "Orbit"):
+  def on_toAttack(self, method = "ball_pass"):
     t = self.GetObjectInfo()
     l = self.GetObstacleInfo()  
     rs = self.GetRobotInfo()
@@ -94,24 +94,31 @@ class MyStateMachine(Robot, StateMachine):
 
     self.MotionCtrl(x, y, yaw)
 
-  def on_toDefence(self, method = "ball_pass"):
+  def on_toDefence(self, method = "Classic"):
     t = self.GetObjectInfo()
     side = self.our_side
 
     rs = self.GetRobotInfo()
     ro = self.GetRobotOther()
-    if method == "ball_pass":
-      x, y, yaw = self.AC.ball_pass(rs['location']['x'],rs['location']['y'],rs['location']['yaw'],ro['position']['x'],ro['position']['y'],ro['position']['yaw'])
 
-
-
-
-    elif method == "Classic":
+    if method == "Classic":
       x, y, yaw = self.DC.Toball(t['ball']['dis'], t['ball']['ang'], t[side]['dis'], t[side]['ang'])
     self.MotionCtrl(x, y, yaw)
 
   def on_toShoot(self, power, pos = 1):
     self.RobotShoot(power, pos)
+
+  def on_toSupporter(self,method = "ball_pass"):
+    t = self.GetObjectInfo()
+    side = self.our_side
+
+    rs = self.GetRobotInfo()
+    ro = self.GetRobotOther()
+
+    if method == "ball_pass":
+      x, y, yaw = self.AC.ball_pass(rs['location']['x'],rs['location']['y'],rs['location']['yaw'],ro['position']['x'],ro['position']['y'],ro['position']['yaw'])
+
+
 
   def CheckBallHandle(self):
     if self.RobotBallHandle():

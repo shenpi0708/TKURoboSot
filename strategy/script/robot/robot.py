@@ -32,11 +32,12 @@ ROTATE_V_ANG = 90
 VISION_TOPIC = "vision/object"
 POSITION_TOPIC = "akf_pose"
 IMU            = "imu_3d"
+RE            = "requestsignal"
 ## Strategy Outputs
 STRATEGY_STATE_TOPIC = "strategy/state"
 CMDVEL_TOPIC = "motion/cmd_vel"
 SHOOT_TOPIC  = "motion/shoot"
-
+REQUEST_SIGNAL = "requestsignal"
 class Robot(object):
   
   __twopoint_info = {'Blue':{'right' : 0,'left' : 0},
@@ -69,7 +70,6 @@ class Robot(object):
   r1_role = ""
   r2_role = ""
   r3_role = ""
-
   ## Configs
   __minimum_w = 0
   __maximum_w = 0
@@ -85,6 +85,8 @@ class Robot(object):
   Ki_w = 0.0
   Kd_w = 0.1
   Cp_w = 0
+  __requestsignalin =True
+  requestsignal =  True
 
   pid_v = PID(Kp_v, Ki_v, Kd_v, setpoint=Cp_v)
   pid_v.output_limits = (-1*__maximum_v, __maximum_v)
@@ -125,11 +127,13 @@ class Robot(object):
     rospy.Subscriber(VISION_TOPIC, Object, self._GetVision)
     rospy.Subscriber(POSITION_TOPIC, PoseWithCovarianceStamped, self._GetPosition)
     rospy.Subscriber('BlackRealDis', Int32MultiArray, self._GetBlackItemInfo)
+    rospy.Subscriber("requestsignal", Bool, self._Getre)
     self.MotionCtrl = self.RobotCtrlS
     self.RobotShoot = self.RealShoot
     self.cmdvel_pub = self._Publisher(CMDVEL_TOPIC, Twist)
     self.state_pub  = self._Publisher(STRATEGY_STATE_TOPIC, RobotState)
     self.shoot_pub  = self._Publisher(SHOOT_TOPIC, Int32)
+    self.requestsignal_pub = self._Publisher(REQUEST_SIGNAL,Bool)
     robot2_sub = message_filters.Subscriber('/robot2/strategy/state', RobotState)
     robot3_sub = message_filters.Subscriber('/robot3/strategy/state', RobotState)
     ts = message_filters.ApproximateTimeSynchronizer([robot2_sub, robot3_sub], 10, 0.1, allow_headerless=True)
@@ -184,11 +188,13 @@ class Robot(object):
     self.robot2['position']['x']   = r2_data.position.linear.x
     self.robot2['position']['y']   = r2_data.position.linear.y
     self.robot2['position']['yaw'] = r2_data.position.angular.z
+    self.robot2['state']           = r2_data.state
     self.robot3['ball_is_handled'] = r3_data.ball_is_handled
     self.robot3['ball_dis']        = r3_data.ball_dis
     self.robot3['position']['x']   = r3_data.position.linear.x
     self.robot3['position']['y']   = r3_data.position.linear.y
     self.robot3['position']['yaw'] = r3_data.position.angular.z
+    self.robot3['state']           = r3_data.state
     if "robot1" in rospy.get_namespace():
       dd12 = np.linalg.norm(np.array([self.__robot_info['location']['x'] - self.robot2['position']['x'],
                                       self.__robot_info['location']['y'] - self.robot2['position']['y']]))
@@ -202,7 +208,6 @@ class Robot(object):
     elif "robot3" in rospy.get_namespace():
       self.near_robot_ns = "/robot2"
       self.near_robot = self.robot2
-    
 
   def Supervisor(self):
     duration = time.time() - Robot.sync_last_time
@@ -231,6 +236,7 @@ class Robot(object):
         else:
           self.r2_role = "Attacker" if self.robot2['ball_dis'] < self.robot3['ball_dis'] else "Supporter"
           self.r3_role = "Supporter" if self.r2_role is "Attacker" else "Attacker"
+
 
   def GetState(self, robot_ns):
     if "robot1" in robot_ns.lower():
@@ -279,6 +285,10 @@ class Robot(object):
   def _Publisher(self, topic, mtype):
     return rospy.Publisher(topic, mtype, queue_size=1)
 
+  def _Getre(self, topic):
+    self.__requestsignalin = topic.data
+    # print(topic.data , __requestsignalin ,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
   def _GetVision(self, vision):
     rbx = vision.ball_dis * math.cos(math.radians(vision.ball_ang))
     rby = vision.ball_dis * math.sin(math.radians(vision.ball_ang))
@@ -315,7 +325,8 @@ class Robot(object):
     self.__twopoint_info['Blue']['left']    = vision.blue_left
     self.__twopoint_info['Yellow']['right'] = vision.yellow_right
     self.__twopoint_info['Yellow']['left']  = vision.yellow_left
-
+    self.RE =vision.requestsignal
+    print(RE+'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1')
   def _GetBlackItemInfo(self, vision):
     self.__obstacle_info['ranges'] =vision.data
 
@@ -332,7 +343,9 @@ class Robot(object):
     qw = loc.pose.pose.orientation.w
     self.__robot_info['location']['yaw'] = math.atan2(2 * (qx*qy + qw*qz), qw*qw + qx*qx - qy*qy - qz*qz)\
                                            / math.pi * 180  #caculate front angle by self_localization
-                                                                                                                                         
+  def Requestsignal(self):
+    self.requestsignal = self.OtherRobotdis()
+
   def RobotStatePub(self, state):
     m = RobotState()
     m.state = state
@@ -342,6 +355,7 @@ class Robot(object):
     m.position.linear.y  = self.__robot_info['location']['y']
     m.position.angular.z = self.__robot_info['location']['yaw']
     self.state_pub.publish(m)
+    self.requestsignal_pub.publish(self.requestsignal)
     
   def ConvertSpeedToPWM(self, x, y):
     reducer = 24
@@ -408,8 +422,7 @@ class Robot(object):
       a = math.acos(dis_x/dis)*180/math.pi
       b = math.asin(dis_y/dis)*180/math.pi
     else :
-      print('error')
-      return 0,0
+      return False
 
     if a>=0 and b>=0:
       v_yawa = a
@@ -434,8 +447,7 @@ class Robot(object):
       a = math.acos(dis_x/dis)*180/math.pi
       b = math.asin(dis_y/dis)*180/math.pi
     else :
-      print('error')
-      return 0,0
+      return False
 
     if a>=0 and b>=0:
       v_yawb = a
@@ -451,8 +463,12 @@ class Robot(object):
       v_yawbb=v_yawbb+360
     elif v_yawbb>180:
       v_yawbb=v_yawbb-360
-      
-    return v_yawaa,v_yawbb
+     
+    print(v_yawaa,v_yawbb)
+    if abs(v_yawaa)<2 and  abs(v_yawbb)<2:
+      return True
+    else:
+      return False
       
   def GetObjectInfo(self):
     return self.__object_info
@@ -486,3 +502,6 @@ class Robot(object):
 
   def RealBallHandle(self):
     return self.__ball_is_handled
+  def GetREInfo(self):
+    print("!!!",self.__requestsignalin,"!!!")
+    return self.__requestsignalin

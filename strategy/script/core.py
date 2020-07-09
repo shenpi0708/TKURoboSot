@@ -18,12 +18,13 @@ class Strategy(object):
     while not rospy.is_shutdown():
       print(self.robot.current_state)
       self.robot.RobotStatePub(self.robot.current_state.name)
+      self.robot.Requestsignal()
       # self.robot.ShowRobotInfo()
       targets = self.robot.GetObjectInfo()
       position = self.robot.GetRobotInfo()
       otherrobot = self.robot.GetRobotOther()
-      robotdis_a,robotdis_b = self.robot.OtherRobotdis()
-      print(abs(robotdis_a),abs(robotdis_b))
+      shootcheck = self.robot.GetREInfo()
+      print(shootcheck)
       # Can not find ball when starting
       if targets is None or targets['ball']['ang'] == 999 and self.robot.game_start:
         print("Can not find ball")
@@ -34,21 +35,30 @@ class Strategy(object):
 
         if self.robot.is_idle:
           if self.robot.game_start:
-            if not self.robot.defence:
+            if not self.robot.test:
               self.robot.toChase()
             else:
-              self.robot.toDefence()
+              self.robot.toSupporter()
+
 
         if self.robot.is_chase:
           if self.robot.CheckBallHandle():
             self.robot.toAttack()
+          elif otherrobot['state'] =="Chase":
+            self.robot.toSupporter()
+          else:
+            print(otherrobot['state'])
+        if self.robot.is_supporter:
+          if  shootcheck:
+            self.robot.toChase()
 
         if self.robot.is_attack:
           if not self.robot.CheckBallHandle():
-            self.robot.toChase()
-          elif abs(robotdis_a)<2 and  abs(robotdis_b)<2:
-            self.robot.toShoot(100)
-            print('hihohohohohhhohohoohohohohoho')            
+            #self.robot.toChase()
+            self.robot.toSupporter()
+          elif shootcheck:
+            self.robot.toShoot(100) 
+
           elif  abs(targets[self.robot.opp_side]['ang']) < self.robot.atk_shoot_ang and \
                 abs(targets[self.robot.opp_side]['dis']) < self.robot.atk_shoot_dis:
             self.robot.toShoot(100)
