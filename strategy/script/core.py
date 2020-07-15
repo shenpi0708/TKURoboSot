@@ -57,7 +57,7 @@ class Strategy(object):
             #self.robot.toChase()
             self.robot.toSupporter()
           elif shootcheck:
-            self.robot.toShoot(100) 
+            self.robot.toShoot(50) 
 
           elif  abs(targets[self.robot.opp_side]['ang']) < self.robot.atk_shoot_ang and \
                 abs(targets[self.robot.opp_side]['dis']) < self.robot.atk_shoot_dis:

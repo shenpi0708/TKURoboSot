@@ -117,7 +117,9 @@ class MyStateMachine(Robot, StateMachine):
 
     if method == "ball_pass":
       x, y, yaw = self.AC.ball_pass(rs['location']['x'],rs['location']['y'],rs['location']['yaw'],ro['position']['x'],ro['position']['y'],ro['position']['yaw'])
-
+    
+    print(x,y, yaw)
+    self.MotionCtrl(x, y, yaw)
 
 
   def CheckBallHandle(self):
