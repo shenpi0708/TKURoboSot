@@ -181,6 +181,33 @@
                 + JSON.stringify(result, null, 2));
             });
     }
+    function test(){
+        if(document.getElementById("test").checked) {
+            myBoolean1 = Boolean(1);
+         }else{
+            myBoolean1 = Boolean(0)
+         }
+        var test = new ROSLIB.Message({
+            data:  myBoolean1
+        });
+        
+         var request = new ROSLIB.ServiceRequest({
+        config: {
+            bools: [
+                {name: 'test', value: test.data},
+               
+            ]
+           
+        }
+
+        });
+        dynaRecClient.callService(request, function(result) {
+            console.log('Result for service call on '
+                + dynaRecClient.name
+                + ': '
+                + JSON.stringify(result, null, 2));
+            });
+    }
     function chg(){
             if(document.getElementById("change_plan").checked) {
                 myBoolean6 = Boolean(1);
