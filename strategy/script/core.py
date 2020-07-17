@@ -70,11 +70,12 @@ class Strategy(object):
 
         if rospy.is_shutdown():
           break
+        i+=1
 
         ## Keep Current State Running
         keepState = 'to' + self.robot.current_state.name
         getattr(self.robot, keepState)()
-
+        
         self.rate.sleep()
 
 if __name__ == '__main__':
