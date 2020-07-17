@@ -50,6 +50,8 @@ class Strategy(object):
           if  shootcheck:
             if i>500:
               self.robot.toChase()
+            else :
+              print(i)
 
         if self.robot.is_attack:
           if not self.robot.CheckBallHandle():
