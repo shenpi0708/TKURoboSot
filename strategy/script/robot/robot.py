@@ -287,7 +287,7 @@ class Robot(object):
 
   def _Getre(self, topic):
     self.__requestsignalin = topic.data
-    # print(topic.data , __requestsignalin ,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  
 
   def _GetVision(self, vision):
     rbx = vision.ball_dis * math.cos(math.radians(vision.ball_ang))
@@ -503,5 +503,4 @@ class Robot(object):
   def RealBallHandle(self):
     return self.__ball_is_handled
   def GetREInfo(self):
-    print("!!!",self.__requestsignalin,"!!!")
     return self.__requestsignalin

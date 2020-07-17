@@ -15,9 +15,9 @@ class Strategy(object):
     self.main()
 
   def main(self):
+    i=0
     while not rospy.is_shutdown():
       print(self.robot.current_state)
-      i=0
       self.robot.RobotStatePub(self.robot.current_state.name)
       self.robot.Requestsignal()
       # self.robot.ShowRobotInfo()
@@ -25,7 +25,6 @@ class Strategy(object):
       position = self.robot.GetRobotInfo()
       otherrobot = self.robot.GetRobotOther()
       shootcheck = self.robot.GetREInfo()
-      print(shootcheck)
       # Can not find ball when starting
       if targets is None or targets['ball']['ang'] == 999 and self.robot.game_start:
         print("Can not find ball")
@@ -48,9 +47,9 @@ class Strategy(object):
           elif otherrobot['state'] =="Chase":
             self.robot.toSupporter()
         if self.robot.is_supporter:
-          if  shootcheck and i>500:
-            self.robot.toChase()
-            i=0;
+          if  shootcheck:
+            if i>500:
+              self.robot.toChase()
 
         if self.robot.is_attack:
           if not self.robot.CheckBallHandle():
@@ -72,7 +71,6 @@ class Strategy(object):
 
         ## Keep Current State Running
         keepState = 'to' + self.robot.current_state.name
-        i+=1
         getattr(self.robot, keepState)()
 
         self.rate.sleep()
