@@ -15,7 +15,7 @@ class Strategy(object):
     self.main()
 
   def main(self):
-    i=0
+    ball_pass_finsh = True
     while not rospy.is_shutdown():
       print(self.robot.current_state)
       self.robot.RobotStatePub(self.robot.current_state.name)
@@ -48,10 +48,8 @@ class Strategy(object):
             self.robot.toSupporter()
         if self.robot.is_supporter:
           if  shootcheck:
-            if i>500:
+            if not ball_pass_finsh
               self.robot.toChase()
-            else :
-              print(i)
 
         if self.robot.is_attack:
           if not self.robot.CheckBallHandle():
@@ -59,6 +57,7 @@ class Strategy(object):
             self.robot.toSupporter()
           elif shootcheck:
             self.robot.toShoot(50) 
+            ball_pass_finsh = False
 
           elif  abs(targets[self.robot.opp_side]['ang']) < self.robot.atk_shoot_ang and \
                 abs(targets[self.robot.opp_side]['dis']) < self.robot.atk_shoot_dis:
@@ -70,7 +69,7 @@ class Strategy(object):
 
         if rospy.is_shutdown():
           break
-        i+=1
+        
 
         ## Keep Current State Running
         keepState = 'to' + self.robot.current_state.name
