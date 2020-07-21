@@ -48,7 +48,7 @@ class Strategy(object):
             self.robot.toSupporter()
         if self.robot.is_supporter:
           if  shootcheck:
-            if not ball_pass_finsh:
+            if ball_pass_finsh:
               self.robot.toChase()
 
         if self.robot.is_attack:
