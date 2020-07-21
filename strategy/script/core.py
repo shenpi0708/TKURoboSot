@@ -45,7 +45,8 @@ class Strategy(object):
           if self.robot.CheckBallHandle():
             self.robot.toAttack()
           elif otherrobot['state'] =="Chase":
-            self.robot.toSupporter()
+            if not ball_pass_finsh:
+              self.robot.toSupporter()
         if self.robot.is_supporter:
           if  shootcheck:
             if ball_pass_finsh:
