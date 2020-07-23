@@ -355,8 +355,14 @@ class Robot(object):
     m.position.linear.y  = self.__robot_info['location']['y']
     m.position.angular.z = self.__robot_info['location']['yaw']
     self.state_pub.publish(m)
-    self.requestsignal_pub.publish(self.requestsignal)
-    
+
+    i=10
+    if self.requestsignal:
+      i=0
+    elif i<10:
+      self.requestsignal_pub.publish(True)
+    else :
+      self.requestsignal_pub.publish(False)
   def ConvertSpeedToPWM(self, x, y):
     reducer = 24
     max_rpm = 7580
