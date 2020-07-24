@@ -49,7 +49,9 @@ class Strategy(object):
               self.robot.toSupporter()
         if self.robot.is_supporter:
           if  shootcheck:
+            print("1")
             if ball_pass_finsh:
+              print("2")
               if not otherrobot['state'] =="Chase":
                 self.robot.toChase()
 

@@ -359,9 +359,13 @@ class Robot(object):
     i=10
     if self.requestsignal:
       i=0
+      print("11")
+      self.requestsignal_pub.publish(True)
     elif i<10:
+      print("22")
       self.requestsignal_pub.publish(True)
     else :
+      print("33")
       self.requestsignal_pub.publish(False)
   def ConvertSpeedToPWM(self, x, y):
     reducer = 24
