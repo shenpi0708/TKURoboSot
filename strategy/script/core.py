@@ -51,14 +51,15 @@ class Strategy(object):
           if  shootcheck:
             if ball_pass_finsh:
               if not otherrobot['state'] =="Chase":
-                self.robot.toChase()
+                if targets['ball']['dis']<=100:
+                  self.robot.toChase()
 
         if self.robot.is_attack:
           if not self.robot.CheckBallHandle():
             #self.robot.toChase()
             self.robot.toSupporter()
           elif shootcheck:
-            self.robot.toShoot(50) 
+            self.robot.toShoot(49) 
             ball_pass_finsh = False
 
           elif  abs(targets[self.robot.opp_side]['ang']) < self.robot.atk_shoot_ang and \
