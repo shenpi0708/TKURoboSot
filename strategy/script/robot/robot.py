@@ -472,7 +472,7 @@ class Robot(object):
       v_yawbb=v_yawbb-360
      
     print(v_yawaa,v_yawbb)
-    if abs(v_yawaa)<5 and  abs(v_yawbb)<5:
+    if abs(v_yawaa)<10 and  abs(v_yawbb)<10:
       return True
     else:
       return False
