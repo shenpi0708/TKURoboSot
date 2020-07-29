@@ -108,6 +108,7 @@ class Attack(Robot,Obstacle):
       v_yaw=v_yaw+360
     elif v_yaw>180:
       v_yaw=v_yaw-360
+    v_yaw*=1.5  
     return 0,0,v_yaw
 
     

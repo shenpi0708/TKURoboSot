@@ -36,7 +36,7 @@ class Chase(object):
     v_x   = ball_dis * math.cos(math.radians(ball_ang))
     v_y   = ball_dis * math.sin(math.radians(ball_ang))
     v_yaw = ball_ang
-    return v_x, v_y, v_yaw
+    return v_x*2, v_y*2, v_yaw*2
 
   
 
