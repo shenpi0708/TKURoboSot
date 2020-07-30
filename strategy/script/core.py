@@ -51,7 +51,7 @@ class Strategy(object):
           if  shootcheck:
             if ball_pass_finsh:
               if not otherrobot['state'] =="Chase":
-                if  not otherrobot['state'] =="Idle"
+                if  not otherrobot['state'] =="Idle":
                   self.robot.toChase()
 
         if self.robot.is_attack:
