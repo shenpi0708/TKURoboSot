@@ -49,12 +49,17 @@ class MyStateMachine(Robot, StateMachine):
   def on_toIdle(self):
     self.MotionCtrl(0,0,0)
 
-  def on_toChase(self):
-    method = "Classic"
+  def on_toChase(self,method="Classic"):
+    self.check = self.GetChass
+    if not self.check:
+      method == "ballpasschase"
     t = self.GetObjectInfo()
     side = self.opp_side
-    
     if method == "Classic":
+      x, y, yaw = self.CC.StraightForward(\
+                                          t['ball']['dis'],\
+                                          t['ball']['ang'])
+    if method == "ballpasschase":
       x, y, yaw = self.CC.StraightForward(\
                                           t['ball']['dis'],\
                                           t['ball']['ang'])

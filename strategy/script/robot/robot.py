@@ -95,6 +95,8 @@ class Robot(object):
   pid_w.output_limits = (-1*__maximum_w, __maximum_w)
   pid_w.auto_mode = True
 
+  ball_pass_finsh = True
+
   def TuningVelocityContorller(self, p, i, d, cp = Cp_v):
     self.pid_v.setpoint = cp
     self.pid_v.tunings = (p, i, d)
@@ -511,3 +513,5 @@ class Robot(object):
     return self.__ball_is_handled
   def GetREInfo(self):
     return self.__requestsignalin
+  def GetChass(slef):
+    return self.ball_pass_finsh
