@@ -61,9 +61,10 @@ class MyStateMachine(Robot, StateMachine):
                                           t['ball']['dis'],\
                                           t['ball']['ang'])
     if method == "ballpasschase":
-      x, y, yaw = self.CC.StraightForward(\
+      x, y, yaw = self.CC.ballpasschase(\
                                           t['ball']['dis'],\
                                           t['ball']['ang'])
+      p
     self.MotionCtrl(x, y, yaw)
     
   def on_toAttack(self, method = "ball_pass"):
