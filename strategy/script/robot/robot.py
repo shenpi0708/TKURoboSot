@@ -513,5 +513,5 @@ class Robot(object):
     return self.__ball_is_handled
   def GetREInfo(self):
     return self.__requestsignalin
-  def GetChass(slef):
+  def GetChass(self):
     return self.ball_pass_finsh

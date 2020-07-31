@@ -15,7 +15,6 @@ class Strategy(object):
     self.main()
 
   def main(self):
-    ball_pass_finsh = True
     while not rospy.is_shutdown():
       print(self.robot.current_state)
       self.robot.RobotStatePub(self.robot.current_state.name)
