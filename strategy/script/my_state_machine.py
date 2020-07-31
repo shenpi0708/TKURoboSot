@@ -50,9 +50,10 @@ class MyStateMachine(Robot, StateMachine):
     self.MotionCtrl(0,0,0)
 
   def on_toChase(self,method="Classic"):
-    self.check = self.GetChass
-    if not self.check:
+    check = self.GetChass()
+    if not check:
       method == "ballpasschase"
+
     t = self.GetObjectInfo()
     side = self.opp_side
     if method == "Classic":
