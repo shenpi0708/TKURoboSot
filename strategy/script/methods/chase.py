@@ -39,14 +39,14 @@ class Chase(object):
     return v_x, v_y, v_yaw*2
   def ballpasschase(self, ball_dis, ball_ang):
     ball_dis = ball_dis - SOCCER_BALL_RADIUS
-    if ball_dis<200:
+    if ball_dis<100:
       v_x   = ball_dis * math.cos(math.radians(ball_ang))
       v_y   = ball_dis * math.sin(math.radians(ball_ang))
       v_yaw = ball_ang
     else:
       v_x = 0
-      V_y = ball_ang*10
-      V_yaw = 0 
+      v_y = ball_ang*10
+      v_yaw = 0 
     return v_x, v_y, v_yaw
 
   

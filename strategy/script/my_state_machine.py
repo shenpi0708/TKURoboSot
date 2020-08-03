@@ -52,8 +52,10 @@ class MyStateMachine(Robot, StateMachine):
   def on_toChase(self,method="Classic"):
     check = self.GetChass()
     if not check:
-      method == "ballpasschase"
-
+      method = "ballpasschase"
+      print(method)
+    else :
+      method="Classic"
     t = self.GetObjectInfo()
     side = self.opp_side
     if method == "Classic":
@@ -64,7 +66,7 @@ class MyStateMachine(Robot, StateMachine):
       x, y, yaw = self.CC.ballpasschase(\
                                           t['ball']['dis'],\
                                           t['ball']['ang'])
-      p
+      
     self.MotionCtrl(x, y, yaw)
     
   def on_toAttack(self, method = "ball_pass"):

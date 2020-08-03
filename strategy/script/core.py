@@ -55,8 +55,8 @@ class Strategy(object):
 
         if self.robot.is_attack:
           if not self.robot.CheckBallHandle():
-            #self.robot.toChase()
-            self.robot.toSupporter()
+            self.robot.toChase()
+            #self.robot.toSupporter()
           elif shootcheck:
             self.robot.toShoot(49) 
             self.robot.ball_pass_finsh = False
