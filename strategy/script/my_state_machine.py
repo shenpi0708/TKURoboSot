@@ -51,7 +51,7 @@ class MyStateMachine(Robot, StateMachine):
 
   def on_toChase(self,method="Classic"):
     check = self.GetChass()
-    if not check:
+    if check:
       method = "ballpasschase"
       print(method)
     else :

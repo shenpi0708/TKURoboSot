@@ -17,6 +17,7 @@ class Strategy(object):
   def main(self):
     while not rospy.is_shutdown():
       print(self.robot.current_state)
+      print(self.robot.GetChass())
       self.robot.RobotStatePub(self.robot.current_state.name)
       self.robot.Requestsignal()
       # self.robot.ShowRobotInfo()
@@ -51,6 +52,7 @@ class Strategy(object):
             if self.robot.ball_pass_finsh:
               if not otherrobot['state'] =="Chase":
                 if  not otherrobot['state'] =="Idle":
+                  self.robot.ball_pass_chase = True
                   self.robot.toChase()
 
         if self.robot.is_attack:
