@@ -42,7 +42,7 @@ class MyStateMachine(Robot, StateMachine):
   supporter = State('Supporter')
   toIdle   = chase.to(idle) | attack.to(idle)  | shoot.to(idle) | defence.to(idle) | idle.to.itself() |supporter.to(idle)
   toChase  = idle.to(chase) | attack.to(chase) | chase.to.itself() | defence.to(chase)|supporter.to(chase)
-  toAttack = attack.to.itself() | shoot.to(attack) | chase.to(attack) |supporter.to(attack)
+  toAttack = attack.to.itself() | shoot.to(attack) | chase.to(attack) |supporter.to(attack)|idle.to(attack)
   toDefence = defence.to.itself() | idle.to(defence) | chase.to(defence)
   toShoot  = attack.to(shoot) | idle.to(shoot)
   toSupporter =  attack.to(supporter)  | idle.to(supporter ) | supporter.to.itself()| chase.to(supporter)
@@ -50,10 +50,9 @@ class MyStateMachine(Robot, StateMachine):
     self.MotionCtrl(0,0,0)
 
   def on_toChase(self,method="Classic"):
-    check = self.GetChass()
-    if check:
+    
+    if self.is_catch:
       method = "ballpasschase"
-      print(method)
     else :
       method="Classic"
     t = self.GetObjectInfo()
@@ -63,7 +62,10 @@ class MyStateMachine(Robot, StateMachine):
                                           t['ball']['dis'],\
                                           t['ball']['ang'])
     if method == "ballpasschase":
-      x, y, yaw = self.CC.ballpasschase(\
+      if t['ball']['dis']== 999:
+        x, y, yaw =0,0,0  
+      else
+        x, y, yaw = self.CC.ballpasschase(\
                                           t['ball']['dis'],\
                                           t['ball']['ang'])
       
@@ -72,17 +74,16 @@ class MyStateMachine(Robot, StateMachine):
   def on_toAttack(self, method = "ball_pass"):
     t = self.GetObjectInfo()
     l = self.GetObstacleInfo()  
-    rs = self.GetRobotInfo()
-    ro = self.GetRobotOther()
+
     side = self.opp_side
     ourside = self.our_side
-
-      
-    if  self.test:
+    a,b,c=self.CheckWhoPass()
+    d,e,f=self.CheckWhoCatch()  
+    if  self.ball_passingpass:
       method = "ball_pass"
     else :
       method = "Classic"
-    
+    print(method)
     
     if method == "Classic":
       x, y, yaw = self.AC.ClassicAttacking(t[side]['dis'], t[side]['ang'])
@@ -99,8 +100,7 @@ class MyStateMachine(Robot, StateMachine):
                                        l['ranges'],\
                                        l['angle']['increment'])
     elif method == "ball_pass":
-      x, y, yaw = self.AC.ball_pass(rs['location']['x'],rs['location']['y'],rs['location']['yaw'],ro['position']['x'],ro['position']['y'],ro['position']['yaw'])
-
+      x, y, yaw = self.AC.ball_pass(a,b,c,d,e,f)
     self.MotionCtrl(x, y, yaw)
 
   def on_toDefence(self, method = "Classic"):
@@ -117,16 +117,19 @@ class MyStateMachine(Robot, StateMachine):
   def on_toShoot(self, power, pos = 1):
     self.RobotShoot(power, pos)
 
-  def on_toSupporter(self,method = "ball_pass"):
+  def on_toSupporter(self,method = "Classic"):
     t = self.GetObjectInfo()
     side = self.our_side
 
-    rs = self.GetRobotInfo()
-    ro = self.GetRobotOther()
-
+    a,b,c=self.CheckWhoPass()
+    d,e,f=self.CheckWhoCatch() 
+    if self.ball_passingpass:
+      method = "ball_pass"
+    print(method)  
     if method == "ball_pass":
-      x, y, yaw = self.AC.ball_pass(rs['location']['x'],rs['location']['y'],rs['location']['yaw'],ro['position']['x'],ro['position']['y'],ro['position']['yaw'])
-    
+      x, y, yaw = self.AC.ball_pass(a,b,c,d,e,f)
+    if method == "Classic":
+      x, y, yaw = 0,0,0
     self.MotionCtrl(x, y, yaw)
 
 

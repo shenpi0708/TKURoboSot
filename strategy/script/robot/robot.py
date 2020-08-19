@@ -33,11 +33,15 @@ VISION_TOPIC = "vision/object"
 POSITION_TOPIC = "akf_pose"
 IMU            = "imu_3d"
 RE            = "requestsignal"
+PASSREQUESTPass = "PassRequestPass"
+PASSREQUESTCatch = "PassRequestCatch"
 ## Strategy Outputs
 STRATEGY_STATE_TOPIC = "strategy/state"
 CMDVEL_TOPIC = "motion/cmd_vel"
 SHOOT_TOPIC  = "motion/shoot"
 REQUEST_SIGNAL = "requestsignal"
+PASS_REQUESTPass = "PassRequestPass"
+PASS_REQUESTCatch = "PassRequestCatch"
 class Robot(object):
   
   __twopoint_info = {'Blue':{'right' : 0,'left' : 0},
@@ -95,9 +99,21 @@ class Robot(object):
   pid_w.output_limits = (-1*__maximum_w, __maximum_w)
   pid_w.auto_mode = True
 
-  ball_pass_chase = False
-  ball_pass_finsh = True
+  is_catch = False
+  is_pass = False
 
+  PassRequestPass = False
+  R1_PassRequestPass = False
+  R2_PassRequestPass = False
+  R3_PassRequestPass = False
+  Other_PassRequestPass =False
+  PassRequestCatch = False
+  R2_PassRequestCatch = False
+  R3_PassRequestCatch = False
+  Other_PassRequestCatch = False
+  canpassball=True
+  ball_passingpass = False
+  ball_passingcatch = False
   def TuningVelocityContorller(self, p, i, d, cp = Cp_v):
     self.pid_v.setpoint = cp
     self.pid_v.tunings = (p, i, d)
@@ -137,10 +153,21 @@ class Robot(object):
     self.state_pub  = self._Publisher(STRATEGY_STATE_TOPIC, RobotState)
     self.shoot_pub  = self._Publisher(SHOOT_TOPIC, Int32)
     self.requestsignal_pub = self._Publisher(REQUEST_SIGNAL,Bool)
+    self.PassRequestPass_pub = self._Publisher(PASS_REQUESTPass,Bool)
+    self.PassRequestCatch_pub = self._Publisher(PASS_REQUESTCatch,Bool)
     robot2_sub = message_filters.Subscriber('/robot2/strategy/state', RobotState)
     robot3_sub = message_filters.Subscriber('/robot3/strategy/state', RobotState)
     ts = message_filters.ApproximateTimeSynchronizer([robot2_sub, robot3_sub], 10, 0.1, allow_headerless=True)
     ts.registerCallback(self.MulticastReceiver)
+    robot1_subPass = message_filters.Subscriber('/robot1/PassRequestPass', Bool)
+    robot2_subPass = message_filters.Subscriber('/robot2/PassRequestPass', Bool)
+    robot3_subPass = message_filters.Subscriber('/robot3/PassRequestPass', Bool)
+    tsPass = message_filters.ApproximateTimeSynchronizer([robot1_subPass,robot2_subPass, robot3_subPass], 10, 0.1, allow_headerless=True)
+    tsPass.registerCallback(self.MulticastReceiverPass)
+    robot2_subCatch = message_filters.Subscriber('/robot2/PassRequestCatch', Bool)
+    robot3_subCatch = message_filters.Subscriber('/robot3/PassRequestCatch', Bool)
+    tsCatch = message_filters.ApproximateTimeSynchronizer([robot2_subCatch, robot3_subCatch], 10, 0.1, allow_headerless=True)
+    tsCatch.registerCallback(self.MulticastReceiverCatch)
     s = rospy.Service('passing_action', Trigger, self._PassingServer)
     
     if not sim :
@@ -198,6 +225,7 @@ class Robot(object):
     self.robot3['position']['y']   = r3_data.position.linear.y
     self.robot3['position']['yaw'] = r3_data.position.angular.z
     self.robot3['state']           = r3_data.state
+
     if "robot1" in rospy.get_namespace():
       dd12 = np.linalg.norm(np.array([self.__robot_info['location']['x'] - self.robot2['position']['x'],
                                       self.__robot_info['location']['y'] - self.robot2['position']['y']]))
@@ -211,6 +239,36 @@ class Robot(object):
     elif "robot3" in rospy.get_namespace():
       self.near_robot_ns = "/robot2"
       self.near_robot = self.robot2
+
+  def MulticastReceiverPass(self, r1_data, r2_data, r3_data):
+    self.R1_PassRequestPass            = r1_data.data
+    self.R3_PassRequestPass            = r3_data.data
+    self.R2_PassRequestPass            = r2_data.data
+    
+    if not "robot1" in rospy.get_namespace():
+      if self.R1_PassRequestPass :
+        self.Other_PassRequestPass =True
+    elif not "robot2" in rospy.get_namespace():
+      if self.R2_PassRequestPass :
+        self.Other_PassRequestPass =True
+    elif not "robot3" in rospy.get_namespace():
+      if self.R3_PassRequestPass :
+        self.Other_PassRequestPass =True
+    else:
+      self.Other_PassRequestPass =False
+  
+  def MulticastReceiverCatch(self, r2_data, r3_data):
+    self.R3_PassRequestCatch            = r3_data.data
+    self.R2_PassRequestCatch            = r2_data.data
+    if not "robot3" in rospy.get_namespace():
+      if self.R3_PassRequestCatch ==True:
+        self.Other_PassRequestCatch =True
+    elif not "robot2" in rospy.get_namespace():  
+      if self.R2_PassRequestCatch ==True:
+        self.Other_PassRequestCatch =True
+    else:
+      self.Other_PassRequestCatch =False
+ 
 
   def Supervisor(self):
     duration = time.time() - Robot.sync_last_time
@@ -349,7 +407,7 @@ class Robot(object):
   def Requestsignal(self):
     self.requestsignal = self.OtherRobotdis()
 
-  def RobotStatePub(self, state):
+  def RobotStatePub(self, state, PASSREQUESTPass,PASSREQUESTCatch):
     m = RobotState()
     m.state = state
     m.ball_is_handled = self.__ball_is_handled
@@ -358,6 +416,8 @@ class Robot(object):
     m.position.linear.y  = self.__robot_info['location']['y']
     m.position.angular.z = self.__robot_info['location']['yaw']
     self.state_pub.publish(m)
+    self.PassRequestPass_pub.publish(PASSREQUESTPass)
+    self.PassRequestCatch_pub.publish(PASSREQUESTCatch)
 
     i=10
     if self.requestsignal:
@@ -367,6 +427,7 @@ class Robot(object):
       self.requestsignal_pub.publish(True)
     else :
       self.requestsignal_pub.publish(False)
+    
   def ConvertSpeedToPWM(self, x, y):
     reducer = 24
     max_rpm = 7580
@@ -418,13 +479,41 @@ class Robot(object):
       msg.linear.y   = output_y
       msg.angular.z  = output_w
       self.cmdvel_pub.publish(msg)
+
+
+  def CheckWhoPass(self):
+    if self.R1_PassRequestPass :
+      robotpass_x   = self.GetRobot1()['position']['x']
+      robotpass_y   = self.GetRobot1()['position']['y']
+      robotpass_yaw = self.GetRobot1()['position']['yaw']
+    elif self.R2_PassRequestPass :
+      robotpass_x   = self.GetRobot2()['position']['x']
+      robotpass_y   = self.GetRobot2()['position']['y']
+      robotpass_yaw = self.GetRobot2()['position']['yaw']      
+    elif self.R3_PassRequestPass :
+      robotpass_x   = self.GetRobot3()['position']['x']
+      robotpass_y   = self.GetRobot3()['position']['y']
+      robotpass_yaw = self.GetRobot3()['position']['yaw']
+    else :
+      return 0,0,0
+    return robotpass_x,robotpass_y,robotpass_yaw
+  def CheckWhoCatch(self):
+    if   self.R2_PassRequestCatch :
+      robotcatch_x   = self.GetRobot2()['position']['x']
+      robotcatch_y   = self.GetRobot2()['position']['y']
+      robotcatch_yaw = self.GetRobot2()['position']['yaw']
+    elif self.R3_PassRequestCatch :
+      robotcatch_x   = self.GetRobot3()['position']['x']
+      robotcatch_y   = self.GetRobot3()['position']['y']
+      robotcatch_yaw = self.GetRobot3()['position']['yaw'] 
+    else :
+      return 0,0,0       
+
+    return robotcatch_x,robotcatch_y,robotcatch_yaw
   def OtherRobotdis(self):
-    robot1_x = self.GetRobotInfo()['location']['x']
-    robot1_y = self.GetRobotInfo()['location']['y']
-    robot2_x = self.GetRobotOther()['position']['x']
-    robot2_y = self.GetRobotOther()['position']['y']
-    robot1_yaw = self.GetRobotInfo()['location']['yaw']
-    robot2_yaw = self.GetRobotOther()['position']['yaw']
+    robot1_x,robot1_y,robot1_yaw = self.CheckWhoPass()
+    robot2_x,robot2_y,robot2_yaw = self.CheckWhoCatch()
+    
     dis_x = robot2_x - robot1_x
     dis_y = robot2_y - robot1_y
     dis = pow(pow(dis_x,2) + pow(dis_y,2),0.5)
@@ -474,7 +563,7 @@ class Robot(object):
     elif v_yawbb>180:
       v_yawbb=v_yawbb-360
      
-    print(v_yawaa,v_yawbb)
+    #print(v_yawaa,v_yawbb)
     if abs(v_yawaa)<5 and  abs(v_yawbb)<5:
       return True
     else:
@@ -494,6 +583,8 @@ class Robot(object):
 
   def GetRobotOther(self):
     return self.near_robot
+  def GetRobot1(self):
+    return self.robot1    
   def GetRobot2(self):
     return self.robot2
   def GetRobot3(self):
@@ -514,5 +605,5 @@ class Robot(object):
     return self.__ball_is_handled
   def GetREInfo(self):
     return self.__requestsignalin
-  def GetChass(self):
-    return self.ball_pass_chase
+
+

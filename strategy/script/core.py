@@ -17,16 +17,32 @@ class Strategy(object):
   def main(self):
     while not rospy.is_shutdown():
       print(self.robot.current_state)
-      print(self.robot.GetChass())
-      self.robot.RobotStatePub(self.robot.current_state.name)
+      self.robot.RobotStatePub(self.robot.current_state.name,self.robot.PassRequestPass,self.robot.PassRequestCatch)
       self.robot.Requestsignal()
+      print(" a= ",self.robot.ball_passingpass)
+      print(" b= ",self.robot.Other_PassRequestCatch)
       # self.robot.ShowRobotInfo()
       targets = self.robot.GetObjectInfo()
       position = self.robot.GetRobotInfo()
       otherrobot = self.robot.GetRobotOther()
       shootcheck = self.robot.GetREInfo()
       # Can not find ball when starting
-      if targets is None or targets['ball']['ang'] == 999 and self.robot.game_start:
+      if self.robot.test:
+        self.robot.PassRequestPass = True
+      elif self.robot.Other_PassRequestPass:
+        if self.robot.canpassball==True:
+          if not "robot1" in rospy.get_namespace():
+            self.robot.PassRequestCatch= True
+            
+
+
+      
+
+      if self.robot.PassRequestCatch == True:
+          self.robot.toSupporter()
+          #self.robot.is_catch = False
+          self.robot.ball_passingcatch = True 
+      elif targets is None or targets['ball']['ang'] == 999 and self.robot.game_start :
         print("Can not find ball")
         self.robot.toIdle()
       else:
@@ -35,40 +51,55 @@ class Strategy(object):
 
         if self.robot.is_idle:
           if self.robot.game_start:
-            if not self.robot.test:
-              self.robot.toChase()
-            else:
-              self.robot.toSupporter()
+            self.robot.toChase()
+        if  self.robot.PassRequestPass == True:
+          if self.robot.CheckBallHandle():
+            if self.robot.R2_PassRequestCatch == True:
+              if not "robot2" in rospy.get_namespace():
+                self.robot.ball_passingpass = True
+                self.robot.PassRequestPass = False
+                self.robot.toAttack()
+            elif self.robot.R3_PassRequestCatch == True:
+              if not "robot3" in rospy.get_namespace():
+                self.robot.ball_passingpass = True
+                self.robot.PassRequestPass = False
+                self.robot.toAttack()
 
-    
         if self.robot.is_chase:
           if self.robot.CheckBallHandle():
             self.robot.toAttack()
-          elif otherrobot['state'] =="Chase":
-            if not self.robot.ball_pass_finsh:
+          elif self.robot.ball_passingpass == True:
+            if  self.robot.is_pass:
+              self.robot.ball_passingpass = False
+              self.robot.is_pass = False
               self.robot.toSupporter()
         if self.robot.is_supporter:
-          if  shootcheck:
-            if self.robot.ball_pass_finsh:
-              if not otherrobot['state'] =="Chase":
-                if  not otherrobot['state'] =="Idle":
-                  self.robot.ball_pass_chase = True
-                  self.robot.toChase()
+          if self.robot.ball_passingcatch :
+            if  shootcheck:
+              self.robot.ball_passingcatch = False
+              self.robot.PassRequestCatch = False
+              self.robot.is_catch = True
+              self.robot.toChase()
 
         if self.robot.is_attack:
           if not self.robot.CheckBallHandle():
             self.robot.toChase()
             #self.robot.toSupporter()
-          elif shootcheck:
-            self.robot.toShoot(49) 
-            self.robot.ball_pass_finsh = False
+          else : 
+            if self.robot.is_catch == True:
+              self.robot.is_catch = False
+              self.robot.PassRequestCatch = False
+            if self.robot.ball_passingpass == True:
+              if shootcheck:
+                self.robot.toShoot(49) 
+                self.robot.is_pass = True
 
-          elif  abs(targets[self.robot.opp_side]['ang']) < self.robot.atk_shoot_ang and \
-                abs(targets[self.robot.opp_side]['dis']) < self.robot.atk_shoot_dis:
-            self.robot.toShoot(100)
-
-
+            if abs(targets[self.robot.opp_side]['ang']) < self.robot.atk_shoot_ang and \
+                  abs(targets[self.robot.opp_side]['dis']) < self.robot.atk_shoot_dis:
+              self.robot.toShoot(100)
+        
         if self.robot.is_shoot:
+          
           self.robot.toAttack()
 
         if rospy.is_shutdown():
