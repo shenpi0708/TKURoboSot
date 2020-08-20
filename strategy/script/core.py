@@ -19,13 +19,14 @@ class Strategy(object):
       print(self.robot.current_state)
       self.robot.RobotStatePub(self.robot.current_state.name,self.robot.PassRequestPass,self.robot.PassRequestCatch)
       self.robot.Requestsignal()
-      print(" a= ",self.robot.ball_passingpass)
-      print(" b= ",self.robot.Other_PassRequestCatch)
+      #print(" a= ",self.robot.ball_passingpass)
+      #print(" b= ",self.robot.Other_PassRequestCatch)
       # self.robot.ShowRobotInfo()
       targets = self.robot.GetObjectInfo()
       position = self.robot.GetRobotInfo()
       otherrobot = self.robot.GetRobotOther()
       shootcheck = self.robot.GetREInfo()
+      #print(position)
       # Can not find ball when starting
       if self.robot.test:
         self.robot.PassRequestPass = True

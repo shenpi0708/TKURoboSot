@@ -64,7 +64,7 @@ class MyStateMachine(Robot, StateMachine):
     if method == "ballpasschase":
       if t['ball']['dis']== 999:
         x, y, yaw =0,0,0  
-      else
+      else:
         x, y, yaw = self.CC.ballpasschase(\
                                           t['ball']['dis'],\
                                           t['ball']['ang'])
