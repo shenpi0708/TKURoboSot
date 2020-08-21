@@ -31,6 +31,7 @@ class Strategy(object):
       if self.robot.test:
         self.robot.PassRequestPass = True
       elif self.robot.Other_PassRequestPass:
+        
         if self.robot.canpassball==True:
           if not "robot1" in rospy.get_namespace():
             self.robot.PassRequestCatch= True

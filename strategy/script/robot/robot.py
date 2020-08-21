@@ -245,27 +245,22 @@ class Robot(object):
     self.R3_PassRequestPass            = r3_data.data
     self.R2_PassRequestPass            = r2_data.data
     
-    if not "robot1" in rospy.get_namespace():
-      if self.R1_PassRequestPass :
-        self.Other_PassRequestPass =True
-    elif not "robot2" in rospy.get_namespace():
-      if self.R2_PassRequestPass :
-        self.Other_PassRequestPass =True
-    elif not "robot3" in rospy.get_namespace():
-      if self.R3_PassRequestPass :
-        self.Other_PassRequestPass =True
+    if not "robot1" in rospy.get_namespace() and self.R1_PassRequestPass:
+      self.Other_PassRequestPass =True
+    elif not "robot2" in rospy.get_namespace() and self.R2_PassRequestPass:
+      self.Other_PassRequestPass =True
+    elif not "robot3" in rospy.get_namespace() and self.R3_PassRequestPass:
+      self.Other_PassRequestPass =True
     else:
       self.Other_PassRequestPass =False
   
   def MulticastReceiverCatch(self, r2_data, r3_data):
     self.R3_PassRequestCatch            = r3_data.data
     self.R2_PassRequestCatch            = r2_data.data
-    if not "robot3" in rospy.get_namespace():
-      if self.R3_PassRequestCatch ==True:
-        self.Other_PassRequestCatch =True
-    elif not "robot2" in rospy.get_namespace():  
-      if self.R2_PassRequestCatch ==True:
-        self.Other_PassRequestCatch =True
+    if not "robot3" in rospy.get_namespace() and self.R3_PassRequestCatch ==True:
+      self.Other_PassRequestCatch =True
+    elif not "robot2" in rospy.get_namespace() and  self.R2_PassRequestCatch ==True:  
+      self.Other_PassRequestCatch =True
     else:
       self.Other_PassRequestCatch =False
  
