@@ -155,9 +155,10 @@ class Robot(object):
     self.requestsignal_pub = self._Publisher(REQUEST_SIGNAL,Bool)
     self.PassRequestPass_pub = self._Publisher(PASS_REQUESTPass,Bool)
     self.PassRequestCatch_pub = self._Publisher(PASS_REQUESTCatch,Bool)
-    robot2_sub = message_filters.Subscriber('/robot2/strategy/state', RobotState)
+    robot2_sub = message_filters.Subscriber('/robot1/strategy/state', RobotState)
+    robot3_sub = message_filters.Subscriber('/robot2/strategy/state', RobotState)
     robot3_sub = message_filters.Subscriber('/robot3/strategy/state', RobotState)
-    ts = message_filters.ApproximateTimeSynchronizer([robot2_sub, robot3_sub], 10, 0.1, allow_headerless=True)
+    ts = message_filters.ApproximateTimeSynchronizer([robot1_sub, robot2_sub, robot3_sub], 10, 0.1, allow_headerless=True)
     ts.registerCallback(self.MulticastReceiver)
     robot1_subPass = message_filters.Subscriber('/robot1/PassRequestPass', Bool)
     robot2_subPass = message_filters.Subscriber('/robot2/PassRequestPass', Bool)
@@ -211,14 +212,22 @@ class Robot(object):
     except rospy.ServiceException, e:
       print("Service call failed: {}".format(e))
 
-  def MulticastReceiver(self, r2_data, r3_data):
+  def MulticastReceiver(self, r1_data, r2_data, r3_data):
     Robot.sync_last_time = time.time()
+    self.robot1['ball_is_handled'] = r1_data.ball_is_handled
+    self.robot1['ball_dis']        = r1_data.ball_dis
+    self.robot1['position']['x']   = r1_data.position.linear.x
+    self.robot1['position']['y']   = r1_data.position.linear.y
+    self.robot1['position']['yaw'] = r1_data.position.angular.z
+    self.robot1['state']           = r1_data.state
+
     self.robot2['ball_is_handled'] = r2_data.ball_is_handled
     self.robot2['ball_dis']        = r2_data.ball_dis
     self.robot2['position']['x']   = r2_data.position.linear.x
     self.robot2['position']['y']   = r2_data.position.linear.y
     self.robot2['position']['yaw'] = r2_data.position.angular.z
     self.robot2['state']           = r2_data.state
+
     self.robot3['ball_is_handled'] = r3_data.ball_is_handled
     self.robot3['ball_dis']        = r3_data.ball_dis
     self.robot3['position']['x']   = r3_data.position.linear.x

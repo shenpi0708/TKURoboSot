@@ -20,7 +20,7 @@ class MyStateMachine(Robot, StateMachine):
   def Callback(self, config, level):
     self.game_start = config['game_start']
     self.test = config['test']
-    #self.defence = config['defence']
+    self.defence = config['defence']
     self.our_side   = config['our_side']
     self.opp_side   = 'Blue' if self.our_side == 'Yellow' else 'Yellow'
     self.maximum_v = config['maximum_v']

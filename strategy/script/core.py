@@ -28,6 +28,10 @@ class Strategy(object):
       shootcheck = self.robot.GetREInfo()
       #print(position)
       # Can not find ball when starting
+      if self.robot.defence:
+        canpassball=True
+      else :
+        canpassball=False
       if self.robot.test:
         self.robot.PassRequestPass = True
       elif self.robot.Other_PassRequestPass:
@@ -40,7 +44,7 @@ class Strategy(object):
 
       
 
-      if self.robot.PassRequestCatch == True:
+      if self.robot.PassRequestCatch == True and self.robot.game_start:
           self.robot.toSupporter()
           #self.robot.is_catch = False
           self.robot.ball_passingcatch = True 
@@ -55,17 +59,18 @@ class Strategy(object):
           if self.robot.game_start:
             self.robot.toChase()
         if  self.robot.PassRequestPass == True:
-          if self.robot.CheckBallHandle():
-            if self.robot.R2_PassRequestCatch == True:
-              if not "robot2" in rospy.get_namespace():
-                self.robot.ball_passingpass = True
-                self.robot.PassRequestPass = False
-                self.robot.toAttack()
-            elif self.robot.R3_PassRequestCatch == True:
-              if not "robot3" in rospy.get_namespace():
-                self.robot.ball_passingpass = True
-                self.robot.PassRequestPass = False
-                self.robot.toAttack()
+          if self.robot.game_start:
+            if self.robot.CheckBallHandle():
+              if self.robot.R2_PassRequestCatch == True:
+                if not "robot2" in rospy.get_namespace():
+                  self.robot.ball_passingpass = True
+                  self.robot.PassRequestPass = False
+                  self.robot.toAttack()
+              elif self.robot.R3_PassRequestCatch == True:
+                if not "robot3" in rospy.get_namespace():
+                  self.robot.ball_passingpass = True
+                  self.robot.PassRequestPass = False
+                  self.robot.toAttack()
 
         if self.robot.is_chase:
           if self.robot.CheckBallHandle():
