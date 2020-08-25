@@ -71,10 +71,10 @@ class MyStateMachine(Robot, StateMachine):
       
     self.MotionCtrl(x, y, yaw)
     
-  def on_toAttack(self, method = "ball_pass"):
+  def on_toAttack(self):
     t = self.GetObjectInfo()
     l = self.GetObstacleInfo()  
-
+    print("1111111111111111")
     side = self.opp_side
     ourside = self.our_side
     a,b,c=self.CheckWhoPass()
@@ -117,17 +117,18 @@ class MyStateMachine(Robot, StateMachine):
   def on_toShoot(self, power, pos = 1):
     self.RobotShoot(power, pos)
 
-  def on_toSupporter(self,method = "Classic"):
+  def on_toSupporter(self):
     t = self.GetObjectInfo()
     side = self.our_side
-
     a,b,c=self.CheckWhoPass()
     d,e,f=self.CheckWhoCatch() 
-    if self.ball_passingpass:
+    if self.ball_passingcatch:
       method = "ball_pass"
+    else :
+      method = "Classic"
     print(method)  
     if method == "ball_pass":
-      x, y, yaw = self.AC.ball_pass(a,b,c,d,e,f)
+      x, y, yaw = self.AC.ball_pass(d,e,f,a,b,c)
     if method == "Classic":
       x, y, yaw = 0,0,0
     self.MotionCtrl(x, y, yaw)

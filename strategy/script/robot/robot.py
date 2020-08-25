@@ -114,6 +114,7 @@ class Robot(object):
   canpassball=True
   ball_passingpass = False
   ball_passingcatch = False
+  is_supporterrobot = False
   def TuningVelocityContorller(self, p, i, d, cp = Cp_v):
     self.pid_v.setpoint = cp
     self.pid_v.tunings = (p, i, d)
@@ -234,7 +235,7 @@ class Robot(object):
     self.robot3['position']['y']   = r3_data.position.linear.y
     self.robot3['position']['yaw'] = r3_data.position.angular.z
     self.robot3['state']           = r3_data.state
-
+    
     if "robot1" in rospy.get_namespace():
       dd12 = np.linalg.norm(np.array([self.__robot_info['location']['x'] - self.robot2['position']['x'],
                                       self.__robot_info['location']['y'] - self.robot2['position']['y']]))
@@ -253,7 +254,6 @@ class Robot(object):
     self.R1_PassRequestPass            = r1_data.data
     self.R3_PassRequestPass            = r3_data.data
     self.R2_PassRequestPass            = r2_data.data
-    
     if not "robot1" in rospy.get_namespace() and self.R1_PassRequestPass:
       self.Other_PassRequestPass =True
     elif not "robot2" in rospy.get_namespace() and self.R2_PassRequestPass:
@@ -486,38 +486,45 @@ class Robot(object):
 
 
   def CheckWhoPass(self):
-    if self.R1_PassRequestPass :
+    if   self.R1_PassRequestPass :
       robotpass_x   = self.GetRobot1()['position']['x']
       robotpass_y   = self.GetRobot1()['position']['y']
       robotpass_yaw = self.GetRobot1()['position']['yaw']
+      print("pass=1")
     elif self.R2_PassRequestPass :
       robotpass_x   = self.GetRobot2()['position']['x']
       robotpass_y   = self.GetRobot2()['position']['y']
       robotpass_yaw = self.GetRobot2()['position']['yaw']      
+      print("pass=2")
     elif self.R3_PassRequestPass :
       robotpass_x   = self.GetRobot3()['position']['x']
       robotpass_y   = self.GetRobot3()['position']['y']
       robotpass_yaw = self.GetRobot3()['position']['yaw']
+      print("pass=3")
     else :
+      print("pass=error")
       return 0,0,0
     return robotpass_x,robotpass_y,robotpass_yaw
   def CheckWhoCatch(self):
+    
     if   self.R2_PassRequestCatch :
       robotcatch_x   = self.GetRobot2()['position']['x']
       robotcatch_y   = self.GetRobot2()['position']['y']
       robotcatch_yaw = self.GetRobot2()['position']['yaw']
+      print("Catch=22")
     elif self.R3_PassRequestCatch :
       robotcatch_x   = self.GetRobot3()['position']['x']
       robotcatch_y   = self.GetRobot3()['position']['y']
       robotcatch_yaw = self.GetRobot3()['position']['yaw'] 
+      print("Catch=33")
     else :
-      return 0,0,0       
+      return 0,0,0  
+      print("Catch=error")     
 
     return robotcatch_x,robotcatch_y,robotcatch_yaw
   def OtherRobotdis(self):
     robot1_x,robot1_y,robot1_yaw = self.CheckWhoPass()
     robot2_x,robot2_y,robot2_yaw = self.CheckWhoCatch()
-    
     dis_x = robot2_x - robot1_x
     dis_y = robot2_y - robot1_y
     dis = pow(pow(dis_x,2) + pow(dis_y,2),0.5)

@@ -19,7 +19,7 @@ class Strategy(object):
       print(self.robot.current_state)
       self.robot.RobotStatePub(self.robot.current_state.name,self.robot.PassRequestPass,self.robot.PassRequestCatch)
       self.robot.Requestsignal()
-      #print(" a= ",self.robot.ball_passingpass)
+      #print(" a= ",self.robot.is_pass)
       #print(" b= ",self.robot.Other_PassRequestCatch)
       # self.robot.ShowRobotInfo()
       targets = self.robot.GetObjectInfo()
@@ -39,37 +39,33 @@ class Strategy(object):
         if self.robot.canpassball==True:
           if not "robot1" in rospy.get_namespace():
             self.robot.PassRequestCatch= True
-            
-
-
-      
-
-      if self.robot.PassRequestCatch == True and self.robot.game_start:
-          self.robot.toSupporter()
-          #self.robot.is_catch = False
-          self.robot.ball_passingcatch = True 
-      elif targets is None or targets['ball']['ang'] == 999 and self.robot.game_start :
+  
+      if targets is None or targets['ball']['ang'] == 999 and self.robot.game_start and not self.robot.PassRequestCatch == True:
         print("Can not find ball")
         self.robot.toIdle()
       else:
+         
         if not self.robot.is_idle and not self.robot.game_start:
           self.robot.toIdle()
-
+        if self.robot.PassRequestCatch == True and self.robot.game_start:
+          self.robot.toSupporter()
+          self.robot.ball_passingcatch = True
         if self.robot.is_idle:
           if self.robot.game_start:
-            self.robot.toChase()
+            if self.robot.is_supporterrobot==True
+              self.robot.toSupporter()
+            else:  
+              self.robot.toChase()
         if  self.robot.PassRequestPass == True:
           if self.robot.game_start:
             if self.robot.CheckBallHandle():
               if self.robot.R2_PassRequestCatch == True:
                 if not "robot2" in rospy.get_namespace():
                   self.robot.ball_passingpass = True
-                  self.robot.PassRequestPass = False
                   self.robot.toAttack()
               elif self.robot.R3_PassRequestCatch == True:
                 if not "robot3" in rospy.get_namespace():
                   self.robot.ball_passingpass = True
-                  self.robot.PassRequestPass = False
                   self.robot.toAttack()
 
         if self.robot.is_chase:
@@ -79,7 +75,9 @@ class Strategy(object):
             if  self.robot.is_pass:
               self.robot.ball_passingpass = False
               self.robot.is_pass = False
+              self.robot.PassRequestPass = False
               self.robot.toSupporter()
+              self.robot.is_supporterrobot=True
         if self.robot.is_supporter:
           if self.robot.ball_passingcatch :
             if  shootcheck:
@@ -87,6 +85,7 @@ class Strategy(object):
               self.robot.PassRequestCatch = False
               self.robot.is_catch = True
               self.robot.toChase()
+           
 
         if self.robot.is_attack:
           if not self.robot.CheckBallHandle():
