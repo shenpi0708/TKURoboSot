@@ -52,7 +52,7 @@ class Strategy(object):
           self.robot.ball_passingcatch = True
         if self.robot.is_idle:
           if self.robot.game_start:
-            if self.robot.is_supporterrobot==True
+            if self.robot.is_supporterrobot==True:
               self.robot.toSupporter()
             else:  
               self.robot.toChase()
@@ -97,7 +97,7 @@ class Strategy(object):
               self.robot.PassRequestCatch = False
             if self.robot.ball_passingpass == True:
               if shootcheck:
-                self.robot.toShoot(49) 
+                self.robot.toShoot(55) 
                 self.robot.is_pass = True
 
             if abs(targets[self.robot.opp_side]['ang']) < self.robot.atk_shoot_ang and \
