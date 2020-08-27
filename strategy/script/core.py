@@ -5,6 +5,7 @@ import math
 import time
 from std_msgs.msg import String
 from my_state_machine import MyStateMachine
+from robot.obstacle import Obstacle
 import dynamic_reconfigure.client
 
 class Strategy(object):
@@ -20,7 +21,10 @@ class Strategy(object):
 
       targets = self.robot.GetObjectInfo()
       position = self.robot.GetRobotInfo()
-
+      a,b=self.obstacle.state(GetObstacleInfo())
+      c=self.obstacle.filter(a)
+      d=self.obstacle.Obstacle_segmentation(c,self.GetObstacleInfo()['angle']['increment'] , b)
+      print(d)
       # Can not find ball when starting
       if targets is None or targets['ball']['ang'] == 999 and self.robot.game_start:
         print("Can not find ball")

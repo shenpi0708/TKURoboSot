@@ -4,6 +4,7 @@ from methods.attack import Attack
 from dynamic_reconfigure.server import Server as DynamicReconfigureServer
 from strategy.cfg import RobotConfig
 from robot.robot import Robot
+from robot.obstacle import Obstacle
 
 class MyStateMachine(Robot, StateMachine):
 
@@ -72,6 +73,8 @@ class MyStateMachine(Robot, StateMachine):
       x, y, yaw = self.AC.Orbit(t[side]['ang'])
     if method == "Twopoint":
       x, y, yaw = self.AC.Twopoint(t[side]['dis'], t[side]['ang'])
+    if method == "Obstacle":
+      x, y, yaw = self.AC.Twopoint(t[side]['dis'], t[side]['ang'])  
     self.MotionCtrl(x, y, yaw)
 
   def on_toShoot(self, power, pos = 1):
