@@ -74,6 +74,7 @@ class Attack(Robot,Obstacle):
     self.raw , object_dis= self.state(ranges) 
     self.edit = self.filter(self.raw)        
     obstacle_force_x , obstacle_force_y = self.Obstacle_segmentation(self.edit ,angle_increment , object_dis)
+    print("123123123")
     
     if obstacle_force_x == 0 and obstacle_force_y == 0 :
         v_x   = goal_dis * math.cos(math.radians(goal_ang))

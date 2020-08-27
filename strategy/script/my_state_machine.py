@@ -74,7 +74,6 @@ class MyStateMachine(Robot, StateMachine):
   def on_toAttack(self):
     t = self.GetObjectInfo()
     l = self.GetObstacleInfo()  
-    print("1111111111111111")
     side = self.opp_side
     ourside = self.our_side
     a,b,c=self.CheckWhoPass()
@@ -82,7 +81,7 @@ class MyStateMachine(Robot, StateMachine):
     if  self.ball_passingpass:
       method = "ball_pass"
     else :
-      method = "Classic"
+      method = "Post_up"
     print(method)
     
     if method == "Classic":
@@ -99,6 +98,7 @@ class MyStateMachine(Robot, StateMachine):
                                        t[side]['ang'],\
                                        l['ranges'],\
                                        l['angle']['increment'])
+     
     elif method == "ball_pass":
       x, y, yaw = self.AC.ball_pass(a,b,c,d,e,f)
     self.MotionCtrl(x, y, yaw)

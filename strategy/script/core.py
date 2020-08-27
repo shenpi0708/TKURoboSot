@@ -6,6 +6,7 @@ import time
 from std_msgs.msg import String
 from my_state_machine import MyStateMachine
 import dynamic_reconfigure.client
+from robot.obstacle import Obstacle
 
 class Strategy(object):
   def __init__(self, sim=False):
