@@ -5,25 +5,25 @@ import math
 import time
 from std_msgs.msg import String
 from my_state_machine import MyStateMachine
-from robot.obstacle import Obstacle
 import dynamic_reconfigure.client
-
+from robot.obstacle import Obstacle
 class Strategy(object):
   def __init__(self, sim=False):
     rospy.init_node('core', anonymous=True)
     self.rate = rospy.Rate(200)
     self.robot = MyStateMachine(sim)
+    self.obs = Obstacle()
     self.main()
 
   def main(self):
     while not rospy.is_shutdown():
       print(self.robot.current_state)
-
+      
       targets = self.robot.GetObjectInfo()
       position = self.robot.GetRobotInfo()
-      a,b=self.obstacle.state(GetObstacleInfo())
-      c=self.obstacle.filter(a)
-      d=self.obstacle.Obstacle_segmentation(c,self.GetObstacleInfo()['angle']['increment'] , b)
+      a,b=self.obs.state(self.robot.GetObstacleInfo())
+      c=self.obs.filter(a)
+      d=self.obs.Obstacle_segmentation(c,self.GetObstacleInfo()['angle']['increment'] , b)
       print(d)
       # Can not find ball when starting
       if targets is None or targets['ball']['ang'] == 999 and self.robot.game_start:
