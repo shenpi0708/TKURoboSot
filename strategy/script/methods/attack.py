@@ -61,7 +61,19 @@ class Attack(Robot,Obstacle):
     else :
       v_y = 0  
     return v_x, v_y, o_yaw
+  def Post_uptest(self, goal_dis, goal_ang,ranges, angle_increment):
+    
+    
+    self.__goal_dis = goal_dis
+    self.__goal_ang = goal_ang
+    self.__ranges = ranges
+    self.__angle_increment = angle_increment
 
+
+    self.raw , object_dis= self.state(ranges) 
+    self.edit = self.filter(self.raw)        
+    obstacle_force_x , obstacle_force_y = self.Obstacle_segmentation(self.edit ,angle_increment , object_dis)
+    
   def Post_up(self, goal_dis, goal_ang,ranges, angle_increment):
     
     
@@ -74,7 +86,6 @@ class Attack(Robot,Obstacle):
     self.raw , object_dis= self.state(ranges) 
     self.edit = self.filter(self.raw)        
     obstacle_force_x , obstacle_force_y = self.Obstacle_segmentation(self.edit ,angle_increment , object_dis)
-    print("123123123")
     
     if obstacle_force_x == 0 and obstacle_force_y == 0 :
         v_x   = goal_dis * math.cos(math.radians(goal_ang))

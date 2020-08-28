@@ -23,6 +23,12 @@ class Strategy(object):
       #print(" a= ",self.robot.is_pass)
       #print(" b= ",self.robot.Other_PassRequestCatch)
       # self.robot.ShowRobotInfo()
+      t = self.GetObjectInfo()
+      l = self.GetObstacleInfo() 
+      self.AC.Post_up(t[side]['dis'],\
+                                       t[side]['ang'],\
+                                       l['ranges'],\
+                                       l['angle']['increment'])
       targets = self.robot.GetObjectInfo()
       position = self.robot.GetRobotInfo()
       otherrobot = self.robot.GetRobotOther()
