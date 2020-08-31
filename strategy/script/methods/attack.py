@@ -72,8 +72,8 @@ class Attack(Robot,Obstacle):
 
     self.raw , object_dis= self.state(ranges) 
     self.edit = self.filter(self.raw)
-    for i in range (1,len(raw)-1):
-      if raw[i]!=0 :
+    for i in range (1,len(self.self.raw)-1):
+      if self.raw[i]!=0 :
         return True
       
     return False
