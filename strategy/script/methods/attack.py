@@ -61,7 +61,7 @@ class Attack(Robot,Obstacle):
     else :
       v_y = 0  
     return v_x, v_y, o_yaw
-  def Post_uptest(self, goal_dis, goal_ang,ranges, angle_increment):
+  def ball_pass_check(self, goal_dis, goal_ang,ranges, angle_increment):
     
     
     self.__goal_dis = goal_dis
@@ -72,8 +72,11 @@ class Attack(Robot,Obstacle):
 
     self.raw , object_dis= self.state(ranges) 
     self.edit = self.filter(self.raw)        
-    obstacle_force_x , obstacle_force_y = self.Obstacle_segmentation(self.edit ,angle_increment , object_dis)
-    
+    for i in range (len(self.edit)):
+      if i!=0:
+        return True
+    return False
+
   def Post_up(self, goal_dis, goal_ang,ranges, angle_increment):
     
     

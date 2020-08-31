@@ -23,12 +23,9 @@ class Strategy(object):
       #print(" a= ",self.robot.is_pass)
       #print(" b= ",self.robot.Other_PassRequestCatch)
       # self.robot.ShowRobotInfo()
-      t = self.GetObjectInfo()
-      l = self.GetObstacleInfo() 
-      self.AC.Post_up(t[side]['dis'],\
-                                       t[side]['ang'],\
-                                       l['ranges'],\
-                                       l['angle']['increment'])
+      t = self.robot.GetObjectInfo()
+      l = self.robot.GetObstacleInfo() 
+
       targets = self.robot.GetObjectInfo()
       position = self.robot.GetRobotInfo()
       otherrobot = self.robot.GetRobotOther()
@@ -40,7 +37,10 @@ class Strategy(object):
       else :
         canpassball=False
       if self.robot.test:
-        self.robot.PassRequestPass = True
+        self.robot.PassRequestPass =   self.robot.AC.ball_pass_check(t[self.robot.opp_side]['dis'],\
+                                       t[self.robot.opp_side]['ang'],\
+                                       l['ranges'],\
+                                       l['angle']['increment'])
       elif self.robot.Other_PassRequestPass:
         
         if self.robot.canpassball==True:

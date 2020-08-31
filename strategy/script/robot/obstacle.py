@@ -38,7 +38,7 @@ class Obstacle(object):
     else :
         self.edit.append(raw[len(raw)-1]) 
     
-    return self.edit    
+        
     
 
   def Obstacle_segmentation(self, edit , angle_increment , object_dis):
@@ -91,9 +91,6 @@ class Obstacle(object):
             else :
                 c=order[w]-len(obstacle[w])/2-1
                 odd.append(c)
-        #maybe is here
-        print(even)
-        print(odd)
 
         for z in range (len(even)) :
             if z%2==0 :
