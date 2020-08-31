@@ -104,7 +104,7 @@ class Strategy(object):
               self.robot.PassRequestCatch = False
             if self.robot.ball_passingpass == True:
               if shootcheck:
-                self.robot.toShoot(55) 
+                self.robot.toShoot(50) 
                 self.robot.is_pass = True
 
             if abs(targets[self.robot.opp_side]['ang']) < self.robot.atk_shoot_ang and \
