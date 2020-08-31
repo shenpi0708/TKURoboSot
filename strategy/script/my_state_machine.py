@@ -81,7 +81,7 @@ class MyStateMachine(Robot, StateMachine):
     if  self.ball_passingpass:
       method = "ball_pass"
     else :
-      method = "Post_up"
+      method = "Classic"
     print(method)
     
     if method == "Classic":
