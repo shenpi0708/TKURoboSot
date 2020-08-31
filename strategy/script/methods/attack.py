@@ -72,7 +72,7 @@ class Attack(Robot,Obstacle):
 
     self.raw , object_dis= self.state(ranges) 
     self.edit = self.filter(self.raw)
-    if (self.edit)='':
+    if (self.edit)=='':
       return True 
     else:
       return False
