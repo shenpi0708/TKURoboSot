@@ -41,7 +41,7 @@ class Strategy(object):
                                        t[self.robot.opp_side]['ang'],\
                                        l['ranges'],\
                                        l['angle']['increment']):
-        self.robot.PassRequestPass = True
+          self.robot.PassRequestPass = True
       if self.robot.Other_PassRequestPass:
         
         if self.robot.canpassball==True:
