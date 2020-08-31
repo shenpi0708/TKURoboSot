@@ -40,7 +40,7 @@ class Strategy(object):
                                        t[self.robot.opp_side]['ang'],\
                                        l['ranges'],\
                                        l['angle']['increment'])
-      elif self.robot.Other_PassRequestPass:
+      if self.robot.Other_PassRequestPass:
         
         if self.robot.canpassball==True:
           if not "robot1" in rospy.get_namespace():
