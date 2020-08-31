@@ -36,8 +36,7 @@ class Strategy(object):
         canpassball=True
       else :
         canpassball=False
-      if self.robot.test:
-        self.robot.PassRequestPass =   self.robot.AC.ball_pass_check(t[self.robot.opp_side]['dis'],\
+      self.robot.PassRequestPass =   self.robot.AC.ball_pass_check(t[self.robot.opp_side]['dis'],\
                                        t[self.robot.opp_side]['ang'],\
                                        l['ranges'],\
                                        l['angle']['increment'])
@@ -59,7 +58,7 @@ class Strategy(object):
           self.robot.ball_passingcatch = True
         if self.robot.is_idle:
           if self.robot.game_start:
-            if self.robot.is_supporterrobot==True:
+            if self.robot.is_supporterrobot==True or self.robot.test:
               self.robot.toSupporter()
             else:  
               self.robot.toChase()
