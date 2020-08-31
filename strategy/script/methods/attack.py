@@ -72,10 +72,11 @@ class Attack(Robot,Obstacle):
 
     self.raw , object_dis= self.state(ranges) 
     self.edit = self.filter(self.raw)
-    if (self.edit)=='':
-      return True 
-    else:
-      return False
+    for i in range (1,len(raw)-1):
+      if raw[i]!=0 :
+        return True
+      
+    return False
 
   def Post_up(self, goal_dis, goal_ang,ranges, angle_increment):
     

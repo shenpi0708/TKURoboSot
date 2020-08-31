@@ -37,6 +37,7 @@ class Obstacle(object):
         self.edit.append(0)
     else :
         self.edit.append(raw[len(raw)-1]) 
+    return self.edit
     
         
     
