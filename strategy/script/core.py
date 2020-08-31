@@ -37,10 +37,11 @@ class Strategy(object):
       else :
         canpassball=False
       if self.robot.CheckBallHandle():  
-        self.robot.PassRequestPass =   self.robot.AC.ball_pass_check(t[self.robot.opp_side]['dis'],\
+        if self.robot.AC.ball_pass_check(t[self.robot.opp_side]['dis'],\
                                        t[self.robot.opp_side]['ang'],\
                                        l['ranges'],\
                                        l['angle']['increment'])
+        self.robot.PassRequestPass = True
       if self.robot.Other_PassRequestPass:
         
         if self.robot.canpassball==True:
