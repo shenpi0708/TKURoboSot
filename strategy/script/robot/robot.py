@@ -360,7 +360,7 @@ class Robot(object):
     if  r1 or r2 or r3:
       self.__requestsignalin = True
     else:
-      self.__requestsignalin = False
+      self.__requestsignalin = False  
 
   def _GetVision(self, vision):
     rbx = vision.ball_dis * math.cos(math.radians(vision.ball_ang))
