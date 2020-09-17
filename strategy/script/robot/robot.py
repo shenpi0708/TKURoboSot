@@ -360,7 +360,7 @@ class Robot(object):
     if  r1 or r2 or r3:
       self.__requestsignalin = True
     else:
-      self.__requestsignalin = False  
+      self.__requestsignalin = False
 
   def _GetVision(self, vision):
     rbx = vision.ball_dis * math.cos(math.radians(vision.ball_ang))
@@ -532,7 +532,7 @@ class Robot(object):
       print("Catch=error")     
 
     return robotcatch_x,robotcatch_y,robotcatch_yaw
-  def (self):
+  def OtherRobotdis(self):
     robot1_x,robot1_y,robot1_yaw = self.CheckWhoPass()
     robot2_x,robot2_y,robot2_yaw = self.CheckWhoCatch()
     dis_x = robot2_x - robot1_x
