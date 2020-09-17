@@ -351,12 +351,15 @@ class Robot(object):
     return rospy.Publisher(topic, mtype, queue_size=1)
 
   def _Getre(self, topic):
+    rt1=False
+    rt2=False
+    rt3=False
     if "robot1" in rospy.get_namespace():
-      r1=topic.data
+      rt1=topic.data
     if "robot2" in rospy.get_namespace():
-      r2=topic.data
+      rt2=topic.data
     if "robot3" in rospy.get_namespace():  
-      r3=topic.data
+      rt3=topic.data
     if  r1 or r2 or r3:
       self.__requestsignalin = True
     else:
