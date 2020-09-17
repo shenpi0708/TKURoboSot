@@ -115,6 +115,9 @@ class Robot(object):
   ball_passingpass = False
   ball_passingcatch = False
   is_supporterrobot = False
+  rt1=False
+  rt2=False
+  rt3=False
   def TuningVelocityContorller(self, p, i, d, cp = Cp_v):
     self.pid_v.setpoint = cp
     self.pid_v.tunings = (p, i, d)
@@ -147,7 +150,6 @@ class Robot(object):
     rospy.Subscriber(VISION_TOPIC, Object, self._GetVision)
     rospy.Subscriber(POSITION_TOPIC, PoseWithCovarianceStamped, self._GetPosition)
     rospy.Subscriber('BlackRealDis', Int32MultiArray, self._GetBlackItemInfo)
-    rospy.Subscriber("requestsignal", Bool, self._Getre)
     self.MotionCtrl = self.RobotCtrlS
     self.RobotShoot = self.RealShoot
     self.cmdvel_pub = self._Publisher(CMDVEL_TOPIC, Twist)
@@ -170,6 +172,10 @@ class Robot(object):
     robot3_subCatch = message_filters.Subscriber('/robot3/PassRequestCatch', Bool)
     tsCatch = message_filters.ApproximateTimeSynchronizer([robot2_subCatch, robot3_subCatch], 10, 0.1, allow_headerless=True)
     tsCatch.registerCallback(self.MulticastReceiverCatch)
+    robot2_subshoot = message_filters.Subscriber("/robot2/requestsignal", RobotState)
+    robot3_subshoot = message_filters.Subscriber('/robot3/requestsignal', RobotState)
+    ts = message_filters.ApproximateTimeSynchronizer([robot2_subshoot, robot3_subshoot], 10, 0.1, allow_headerless=True)
+    ts.registerCallback(self.MulticastReceiverShoot)
     s = rospy.Service('passing_action', Trigger, self._PassingServer)
     
     if not sim :
@@ -272,7 +278,16 @@ class Robot(object):
       self.Other_PassRequestCatch =True
     else:
       self.Other_PassRequestCatch =False
- 
+
+  def MulticastReceiver(self,r2_data, r3_data):
+    if "robot2" in rospy.get_namespace():
+      self.rt2=r2_data.data
+    if "robot3" in rospy.get_namespace():  
+      self.rt3=r3_data.data
+    if   self.rt2 or self.rt3:
+      self.__requestsignalin = True
+    else:
+      self.__requestsignalin = False
 
   def Supervisor(self):
     duration = time.time() - Robot.sync_last_time
@@ -349,21 +364,6 @@ class Robot(object):
 
   def _Publisher(self, topic, mtype):
     return rospy.Publisher(topic, mtype, queue_size=1)
-
-  def _Getre(self, topic):
-    rt1=False
-    rt2=False
-    rt3=False
-    if "robot1" in rospy.get_namespace():
-      rt1=topic.data
-    if "robot2" in rospy.get_namespace():
-      rt2=topic.data
-    if "robot3" in rospy.get_namespace():  
-      rt3=topic.data
-    if  rt1 or rt2 or rt3:
-      self.__requestsignalin = True
-    else:
-      self.__requestsignalin = False
 
   def _GetVision(self, vision):
     rbx = vision.ball_dis * math.cos(math.radians(vision.ball_ang))
