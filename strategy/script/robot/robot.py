@@ -360,7 +360,7 @@ class Robot(object):
       rt2=topic.data
     if "robot3" in rospy.get_namespace():  
       rt3=topic.data
-    if  r1 or r2 or r3:
+    if  rt1 or rt2 or rt3:
       self.__requestsignalin = True
     else:
       self.__requestsignalin = False
