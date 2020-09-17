@@ -351,8 +351,16 @@ class Robot(object):
     return rospy.Publisher(topic, mtype, queue_size=1)
 
   def _Getre(self, topic):
-    self.__requestsignalin = topic.data
-  
+    if "robot1" in rospy.get_namespace():
+      r1=topic.data
+    if "robot2" in rospy.get_namespace():
+      r2=topic.data
+    if "robot3" in rospy.get_namespace():  
+      r3=topic.data
+    if  r1 or r2 or r3:
+      self.__requestsignalin = True
+    else:
+      self.__requestsignalin = False
 
   def _GetVision(self, vision):
     rbx = vision.ball_dis * math.cos(math.radians(vision.ball_ang))
@@ -409,8 +417,10 @@ class Robot(object):
     self.__robot_info['location']['yaw'] = math.atan2(2 * (qx*qy + qw*qz), qw*qw + qx*qx - qy*qy - qz*qz)\
                                            / math.pi * 180  #caculate front angle by self_localization
   def Requestsignal(self):
-    self.requestsignal = self.OtherRobotdis()
-
+    if self.PassRequestCatch:
+      self.requestsignal = self.OtherRobotdis()
+    else :
+      self.requestsignal=False
   def RobotStatePub(self, state, PASSREQUESTPass,PASSREQUESTCatch):
     m = RobotState()
     m.state = state
@@ -522,7 +532,7 @@ class Robot(object):
       print("Catch=error")     
 
     return robotcatch_x,robotcatch_y,robotcatch_yaw
-  def OtherRobotdis(self):
+  def (self):
     robot1_x,robot1_y,robot1_yaw = self.CheckWhoPass()
     robot2_x,robot2_y,robot2_yaw = self.CheckWhoCatch()
     dis_x = robot2_x - robot1_x

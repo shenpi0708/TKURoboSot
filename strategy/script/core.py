@@ -36,14 +36,8 @@ class Strategy(object):
         canpassball=True
       else :
         canpassball=False
-      if self.robot.CheckBallHandle():  
-        if self.robot.AC.ball_pass_check(t[self.robot.opp_side]['dis'],\
-                                       t[self.robot.opp_side]['ang'],\
-                                       l['ranges'],\
-                                       l['angle']['increment']):
-          self.robot.PassRequestPass = True
+
       if self.robot.Other_PassRequestPass:
-        
         if self.robot.canpassball==True:
           if not "robot1" in rospy.get_namespace():
             self.robot.PassRequestCatch= True
@@ -93,9 +87,16 @@ class Strategy(object):
               self.robot.PassRequestCatch = False
               self.robot.is_catch = True
               self.robot.toChase()
+                    
            
 
         if self.robot.is_attack:
+          if self.robot.CheckBallHandle():  
+            if self.robot.AC.ball_pass_check(t[self.robot.opp_side]['dis'],\
+                                       t[self.robot.opp_side]['ang'],\
+                                       l['ranges'],\
+                                       l['angle']['increment']):
+          self.robot.PassRequestPass = True
           if not self.robot.CheckBallHandle():
             self.robot.toChase()
             #self.robot.toSupporter()
