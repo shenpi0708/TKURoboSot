@@ -279,7 +279,7 @@ class Robot(object):
     else:
       self.Other_PassRequestCatch =False
 
-  def MulticastReceiver(self,r2_data, r3_data):
+  def MulticastReceiverShoot(self,r2_data, r3_data):
     if "robot2" in rospy.get_namespace():
       self.rt2=r2_data.data
     if "robot3" in rospy.get_namespace():  
