@@ -12,7 +12,6 @@ class Strategy(object):
     rospy.init_node('core', anonymous=True)
     self.rate = rospy.Rate(200)
     self.robot = MyStateMachine(sim)
-    self.obs = Obstacle()
     self.main()
 
   def main(self):
@@ -21,10 +20,7 @@ class Strategy(object):
       
       targets = self.robot.GetObjectInfo()
       position = self.robot.GetRobotInfo()
-      a,b=self.obs.state(self.robot.GetObstacleInfo())
-      c=self.obs.filter(a)
-      d=self.obs.Obstacle_segmentation(c,self.GetObstacleInfo()['angle']['increment'] , b)
-      print(d)
+
       # Can not find ball when starting
       if targets is None or targets['ball']['ang'] == 999 and self.robot.game_start:
         print("Can not find ball")
